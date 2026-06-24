@@ -15,10 +15,15 @@ Please go to [https://www.tira.io/](https://www.tira.io/) and click on "Sign Up"
 
 After you have logged in to TIRA, please navigate to the RAG4Reports task at [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge). There, please click on "Register".
 
-<img width="1807" height="712" alt="Screenshot_20260205_075346" src="https://github.com/user-attachments/assets/00cf8fe5-02d1-4b48-aabf-bd5de51cc910" />
+<img width="1801" height="750" alt="Screenshot_20260624_211840" src="https://github.com/user-attachments/assets/b058b8a7-88d4-450c-a63b-303b1c5a27e0" />
 
 
-### Step 3 (Optional): Manage your team
+### Step 3: Private Team Chat to Discuss Technical Aspects
+
+After registration, [Maik](https://www.tira.io/u/maik_froebe) will start a private chat with you in TIRA (by default, the xy to mail) with Laura on cc. We will use this chat to xy.
+
+
+### Step 4 (Optional): Manage your team
 
 If you want to add others to your team, please navigate to your groups (under the hamburger menu) at [https://www.tira.io/g?type=my](https://www.tira.io/g?type=my)
 
@@ -54,7 +59,8 @@ Next, you need an authentication token:
 - Navigate to the Rag4Reports task in TIRA [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge)
 - Click on "submit" => "Code Submission" => "I want to submit from my local machine" => Next. The UI shows your authentication token:
 
-<img width="1964" height="503" alt="Screenshot_20251210_095119" src="https://github.com/user-attachments/assets/12e55ed2-a670-473c-ac4d-748a169afefa" />
+<img width="1808" height="985" alt="Screenshot_20260624_212656" src="https://github.com/user-attachments/assets/995cbd0e-1eae-4a70-a13b-acbf1d2229dc" />
+
 
 Assuming your authentication token is AUTH-TOKEN, please authenticate via:
 
