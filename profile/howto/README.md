@@ -73,7 +73,7 @@ If you have familarized yourself with those examples and the approaches work on 
 <details>
 <summary>Step 2: Ensure that your approach works on your machine</summary>
 
-Please get your approach running in the `auto-judge run` framework. When this works, you can embedd your approach in a similar `tira-cli` command as the [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](naive) or [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge](tiny) judges.
+Please get your approach running in the `auto-judge run` framework. When this works, you can embedd your approach in a similar `tira-cli` command as the [naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive) or [tiny](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge) judges.
 
 </details>
 
