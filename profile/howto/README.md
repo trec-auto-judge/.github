@@ -30,6 +30,26 @@ If you want to add others to your team, please navigate to your groups (under th
 ## Preferred: Code Submissions
 
 
+### Requirements to Code Submissions
+
+
+<details>
+<summary>Step 0: Requirements</summary>
+
+Our requirements to a code submission (we can help to meet them) are:
+
+- All code must be organized in a git repository (the repository can be private, it can be only on your local machine, we do not check that all changes are pushed)
+- The repository must be clean (i.e., git status indicates no uncommitted chages, please use `.gitignore` to ensure that frequently changing files do not make problems)
+- Optional and recommended: The repository is compatible with [dev-containers](https://containers.dev/)
+
+As soon as those requirements are met, a code submission to TIRA performs the following steps:
+
+- The code is compiled into the Docker image as specified by the dev-container
+- This image is tested on the local machine on the spot-check dataset to ensure that the software produces valid outputs
+- If the outputs are valid, the docker image is uploaded to TIRA
+- Within TIRA, we/you run the docker image on all datasets, potentially with multiple LLMs
+</details>
+
 
 
 <details>
@@ -88,5 +108,12 @@ tira-cli login --token AUTH-TOKEN
 Lastly, to verify that everything is correct, please run `tira-cli verify-installation`. Outputs might look like:
 
 <img width="821" height="180" alt="Screenshot_20251210_095410" src="https://github.com/user-attachments/assets/51160132-eb19-4da3-8892-8a53adb41c71" />
+</details>
+
+
+<details>
+<summary>Step 4: Submit your AutoJudges</summary>
+
+This is basically as Step 1, but you need to remove the `--dry-run` flag of the `tira-cli` command.
 
 </details>
