@@ -18,7 +18,7 @@ After you have logged in to TIRA, please navigate to the TREC AutoJudge task at 
 
 ### Step 3: Private Team Chat to Discuss Technical Aspects
 
-After registration, [Maik](https://www.tira.io/u/maik_froebe) will start a private chat with you in TIRA (by default, messages will be forwarded to your e-mail) with Laura on cc. We will use this chat to help you with the submission process (for instance, if you do not have docker installed or do not want to use Github actions to submit, we can discuss how we can access the code to make the submission to TIRA).
+After registration, [Maik](https://www.tira.io/u/maik_froebe) will start a private chat with you in TIRA (by default, messages will be forwarded to your e-mail) with [Laura](https://www.tira.io/u/laura-dietz) on cc. We will use this chat to help you with the submission process (for instance, if you do not have docker installed or do not want to use Github actions to submit, we can discuss how we can access the code to make the submission to TIRA).
 
 
 ### Step 4 (Optional): Manage your team
