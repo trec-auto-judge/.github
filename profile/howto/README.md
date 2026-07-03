@@ -1,7 +1,5 @@
 # Submission Guidelines for AutoJudge at TREC 2026
 
-**Attention: this is still in progress**
-
 <details>
 <summary>Prerequisite: Create an Account at TIRA.io and register a team to TREC AutoJudge in TIRA</summary>
 
@@ -20,7 +18,7 @@ After you have logged in to TIRA, please navigate to the RAG4Reports task at [ht
 
 ### Step 3: Private Team Chat to Discuss Technical Aspects
 
-After registration, [Maik](https://www.tira.io/u/maik_froebe) will start a private chat with you in TIRA (by default, the xy to mail) with Laura on cc. We will use this chat to xy.
+After registration, [Maik](https://www.tira.io/u/maik_froebe) will start a private chat with you in TIRA (by default, messages will be forwarded to your e-mail) with Laura on cc. We will use this chat to help you with the submission process (for instance, if you do not have docker installed or do not want to use Github actions to submit, we can discuss how we can access the code to make the submission to TIRA).
 
 
 ### Step 4 (Optional): Manage your team
@@ -31,13 +29,37 @@ If you want to add others to your team, please navigate to your groups (under th
 
 ## Preferred: Code Submissions
 
-To ensure that we can run XYZ...
+
 
 
 <details>
-<summary>Step 1: Ensure that your approach works on your machine</summary>
+<summary>Step 1: Install the tira-cli on your machine and ensure that our examples work</summary>
+
+Please install Docker (or podman) on your machine, as well as the TIRA cli:
+
+```
+pip3 install --upgrade tira
+```
+
+We have prepared a set of hello world examples in the [AutoJudge Starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) that we recommend you to run on your machine.
+
+- A naive auto judge system that shows the complete process without dependencies to an LLM: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive)
+- A tinyjudge system that uses an LLM and employs caching: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge)
+
+If you have familarized yourself with those examples and the approaches work on your machine with the described `tira-cli`, everything should be fine. (if there is a problem, please do not hesitate to contact us, for instance, in the private chat that we initiated after your registration.)
 
 </details>
+
+
+
+
+<details>
+<summary>Step 2: Ensure that your approach works on your machine</summary>
+
+Please get your approach running in the `auto-judge run` framework. When this works, you can embedd your approach in a similar `tira-cli` command as the [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](naive) or [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge](tiny) judges.
+
+</details>
+
 
 
 
@@ -46,17 +68,12 @@ To ensure that we can run XYZ...
 
 We assume you have created an account at TIRA.io and have registered a team to TREC AutoJudge task following the prerequisite above.
 
-The preferred way to submit to TREC AutoJudge is via Code Submissions, as this allows to xyz.
+The preferred way to submit to TREC AutoJudge is via Code Submissions, as this allows us to execute all judge system on new datasets with more LLMs.
 
-Please install the TIRA cli via:
-
-```
-pip3 install --upgrade tira
-```
 
 Next, you need an authentication token:
 
-- Navigate to the Rag4Reports task in TIRA [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge)
+- Navigate to the TREC AutoJudge task in TIRA [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge)
 - Click on "submit" => "Code Submission" => "I want to submit from my local machine" => Next. The UI shows your authentication token:
 
 <img width="1808" height="985" alt="Screenshot_20260624_212656" src="https://github.com/user-attachments/assets/995cbd0e-1eae-4a70-a13b-acbf1d2229dc" />
