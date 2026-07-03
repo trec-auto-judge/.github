@@ -63,7 +63,7 @@ We have prepared a set of hello world examples in the [AutoJudge Starter kit](ht
 - A naive auto judge system that shows the complete process without dependencies to an LLM: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive)
 - A tinyjudge system that uses an LLM and employs caching: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge)
 
-If you have familarized yourself with those examples and the approaches work on your machine with the described `tira-cli`, everything should be fine. (if there is a problem, please do not hesitate to contact us, for instance, in the private chat that we initiated after your registration.)
+If you have familarized yourself with those examples and the approaches work on your machine with the described `tira-cli` command, everything should be fine. (if there is a problem, please do not hesitate to contact us, for instance, in the private chat that we initiated after your registration.)
 
 </details>
 
