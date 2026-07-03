@@ -27,10 +27,7 @@ If you want to add others to your team, please navigate to your groups (under th
 
 </details>
 
-## Preferred: Code Submissions
-
-
-### Requirements to Code Submissions
+## Auto Judge Submission to TIRA
 
 
 <details>
