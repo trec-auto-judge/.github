@@ -42,7 +42,7 @@ Our requirements to a code submission (we can help to meet them) are:
 As soon as those requirements are met, a code submission to TIRA performs the following steps:
 
 - The code is compiled into the Docker image as specified by the dev-container
-- This image is tested on the local machine on the spot-check dataset to ensure that the software produces valid outputs
+- This image is tested on the local machine on the kiddie dataset to ensure that the software produces valid outputs
 - If the outputs are valid, the docker image is uploaded to TIRA
 - Within TIRA, we/you run the docker image on all datasets, potentially with multiple LLMs
 </details>
