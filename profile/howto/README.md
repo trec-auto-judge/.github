@@ -11,7 +11,7 @@ Please go to [https://www.tira.io/](https://www.tira.io/) and click on "Sign Up"
 
 ### Step 2: Register Your Team to TREC AutoJudge
 
-After you have logged in to TIRA, please navigate to the RAG4Reports task at [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge). There, please click on "Register".
+After you have logged in to TIRA, please navigate to the TREC AutoJudge task at [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge). There, please click on "Register".
 
 <img width="1801" height="750" alt="Screenshot_20260624_211840" src="https://github.com/user-attachments/assets/b058b8a7-88d4-450c-a63b-303b1c5a27e0" />
 
