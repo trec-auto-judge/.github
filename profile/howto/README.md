@@ -37,11 +37,11 @@ Our requirements to a code submission (we can help to meet them) are:
 
 - All code must be organized in a git repository (the repository can be private, it can be only on your local machine, we do not check that all changes are pushed)
 - The repository must be clean (i.e., git status indicates no uncommitted chages, please use `.gitignore` to ensure that frequently changing files do not make problems)
-- Optional and recommended: The repository is compatible with [dev-containers](https://containers.dev/)
+- The repository must contain a Dockerfile that specifies how the software is dockerized (the produced docker image is uploaded to TIRA, you can ensure that your Dockerfile is compatible with [dev-containers](https://containers.dev/), so that you can directly develop in the container)
 
-As soon as those requirements are met, a code submission to TIRA performs the following steps:
+When those requirements are met, you can submit your auto-judge to TIRA. For this, you call `tira-cli code-submission ...` which will perform the following steps:
 
-- The code is compiled into the Docker image as specified by the dev-container
+- The code is compiled into the Docker image as specified by the Dockerfile
 - This image is tested on the local machine on the kiddie dataset to ensure that the software produces valid outputs
 - If the outputs are valid, the docker image is uploaded to TIRA
 - Within TIRA, we/you run the docker image on all datasets, potentially with multiple LLMs
@@ -60,8 +60,8 @@ pip3 install --upgrade tira
 
 We have prepared a set of hello world examples in the [AutoJudge Starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) that we recommend you to run on your machine.
 
-- A naive auto judge system that shows the complete process without dependencies to an LLM: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive)
-- A tinyjudge system that uses an LLM and employs caching: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge)
+- A naive auto judge system that shows the complete process without dependencies to an LLM: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive#submit-to-tira)
+- A tinyjudge system that uses an LLM and employs caching: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge#submit-to-tira)
 
 If you have familarized yourself with those examples and the approaches work on your machine with the described `tira-cli` command, everything should be fine. (if there is a problem, please do not hesitate to contact us, for instance, in the private chat that we initiated after your registration.)
 
@@ -111,6 +111,18 @@ Lastly, to verify that everything is correct, please run `tira-cli verify-instal
 <details>
 <summary>Step 4: Submit your AutoJudges</summary>
 
-This is basically as Step 1, but you need to remove the `--dry-run` flag of the `tira-cli` command.
+This is basically as Step 1, but you need to remove the `--dry-run` flag of the `tira-cli` command. For instance, to submit the [tinyjudge](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge#submit-to-tira), the command would be:
+
+
+```bash
+tira-cli code-submission \
+    --path . \
+    --cache-behaviour deterministic \
+    --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --task trec-auto-judge \
+    --dataset kiddie-20260605-training \
+    --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
+    --command 'auto-judge run --workflow /auto-judge/judges/tinyjudge/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+```
 
 </details>
