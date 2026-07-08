@@ -37,7 +37,11 @@ Our requirements to a code submission (we can help to meet them) are:
 
 - All code must be organized in a git repository (the repository can be private, it can be only on your local machine, we do not check that all changes are pushed)
 - The repository must be clean (i.e., git status indicates no uncommitted chages, please use `.gitignore` to ensure that frequently changing files do not make problems). You can check this with `git status --porcelain`: if it prints nothing, the repository is clean; any output indicates uncommitted or untracked changes that you need to commit or add to `.gitignore`.
+- When calling `tira-cli` the **currently checked-out git branch** is packaged and submitted to TIRA. (Check the current branch with `git branch --show-current`). You must *commit* all code first.
+- We expect your test suite to pass: running `pytest` should complete without failures before you submit.
 - The repository must contain a Dockerfile that specifies how the software is dockerized (the produced docker image is uploaded to TIRA, you can ensure that your Dockerfile is compatible with [dev-containers](https://containers.dev/), so that you can directly develop in the container)
+- Your judge runs in a **sandbox without internet  access**. The LLM endpoint and model are injected at run time via environment variables (e.g. `OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY`) that you forward into the submission with `--forward-environment-variable`. Do not rely on any other internet access from within your judge.
+- **Never include secrets into the Docker image.** Do not `COPY`/`ADD` API keys or tokens into the image; pass them only via `--forward-environment-variable` so they are injected at run time.
 
 When those requirements are met, you can submit your auto-judge to TIRA. For this, you call `tira-cli code-submission ...` which will perform the following steps:
 
@@ -57,6 +61,8 @@ Please install Docker (or podman) on your machine, as well as the TIRA cli:
 ```
 pip3 install --upgrade tira
 ```
+
+Note that the Docker (or podman) daemon must be **running** when you submit — `tira-cli code-submission` builds and tests the image locally before uploading, so an installed-but-stopped daemon will cause the submission to fail.
 
 We have prepared a set of hello world examples in the [AutoJudge Starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) that we recommend you to run on your machine.
 
