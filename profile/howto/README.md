@@ -36,7 +36,7 @@ If you want to add others to your team, please navigate to your groups (under th
 Our requirements to a code submission (we can help to meet them) are:
 
 - All code must be organized in a git repository (the repository can be private, it can be only on your local machine, we do not check that all changes are pushed)
-- The repository must be clean (i.e., git status indicates no uncommitted chages, please use `.gitignore` to ensure that frequently changing files do not make problems)
+- The repository must be clean (i.e., git status indicates no uncommitted chages, please use `.gitignore` to ensure that frequently changing files do not make problems). You can check this with `git status --porcelain`: if it prints nothing, the repository is clean; any output indicates uncommitted or untracked changes that you need to commit or add to `.gitignore`.
 - The repository must contain a Dockerfile that specifies how the software is dockerized (the produced docker image is uploaded to TIRA, you can ensure that your Dockerfile is compatible with [dev-containers](https://containers.dev/), so that you can directly develop in the container)
 
 When those requirements are met, you can submit your auto-judge to TIRA. For this, you call `tira-cli code-submission ...` which will perform the following steps:
