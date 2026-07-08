@@ -97,7 +97,7 @@ The preferred way to submit to TREC AutoJudge is via Code Submissions, as this a
 Next, you need an authentication token:
 
 - Navigate to the TREC AutoJudge task in TIRA [https://www.tira.io/task-overview/trec-auto-judge](https://www.tira.io/task-overview/trec-auto-judge)
-- Click on "submit" => "Code Submission" => "I want to submit from my local machine" => Next. The UI shows your authentication token:
+- Click on "submit" => "Code Submission" => New Submission => "I want to submit from my local machine" => Next => Next. The UI shows your authentication token:
 
 <img width="1808" height="985" alt="Screenshot_20260624_212656" src="https://github.com/user-attachments/assets/995cbd0e-1eae-4a70-a13b-acbf1d2229dc" />
 
