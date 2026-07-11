@@ -1,6 +1,6 @@
 # 2. Configure Your LLM Endpoint
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Set up your dev environment](setup-environment.md) · Next: [Developing practices](developing-practices.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Set up your dev environment](01-setup-environment.md) · Next: [Developing practices](03-developing-practices.md).*
 
 Every LLM-based judge receives its endpoint, model, and API key through a single injected object — the `llm_config` parameter passed to your judge methods — and must read them from there rather than hardcode them. That indirection is what allows the same judge code to run against your local endpoint during development and against the organizer-provided endpoint inside TIRA's sandbox, unchanged.
 
@@ -13,7 +13,7 @@ All three protocol methods (`judge`, `create_nuggets`, `create_qrels`) get an `l
 | `base_url` | endpoint URL (OpenAI-compatible) |
 | `model` | resolved model identifier |
 | `api_key` | key/token (may be empty for local endpoints) |
-| `cache_dir` | prompt-cache directory, if enabled (see [Prompt cache](prompt-cache.md)) |
+| `cache_dir` | prompt-cache directory, if enabled (see [Prompt cache](05-prompt-cache.md)) |
 | `raw` | the full config dict, for any extra backend parameters |
 
 ## Choose your LLM client — any OpenAI-compatible client works
@@ -63,7 +63,7 @@ auto-judge run --llm-config llm-config.dev.yml --workflow ...
 
 Inside TIRA your judge runs in a sandbox without internet access, so the endpoint must be injected. Two mechanisms exist:
 
-1. **Forwarded environment variables.** When you submit, `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` carries your shell's values into the sandbox, where they populate `llm_config` exactly as in local development. The [submission guide](submit-to-tira.md) shows this in context.
+1. **Forwarded environment variables.** When you submit, `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` carries your shell's values into the sandbox, where they populate `llm_config` exactly as in local development. The [submission guide](07-submit-to-tira.md) shows this in context.
 
 2. **Model preferences (submission mode).** Instead of naming an endpoint, your repo ships an `llm-config.yml` declaring an ordered wish list that the organizers resolve against their model pool:
 

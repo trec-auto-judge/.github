@@ -1,6 +1,6 @@
 # 1. Set Up Your Dev Environment
 
-*Part of the [TREC AutoJudge HowTo](README.md). Next: [Configure your LLM endpoint](configure-llm-endpoint.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Next: [Configure your LLM endpoint](02-configure-llm-endpoint.md).*
 
 Building an auto-judge starts from the [AutoJudge Starter Kit](https://github.com/trec-auto-judge/auto-judge-starter-kit), a forkable template that already contains working example judges, a synthetic test dataset, and the packaging needed for TIRA submission. This page takes you from an empty machine to a verified working environment.
 
@@ -58,7 +58,7 @@ bash run_kiddie.sh
 pytest
 ```
 
-Any failure at this point signals an environment problem — fix it now, before writing judge code. Once both pass, continue with [configuring your LLM endpoint](configure-llm-endpoint.md) and [developing practices](developing-practices.md).
+Any failure at this point signals an environment problem — fix it now, before writing judge code. Once both pass, continue with [configuring your LLM endpoint](02-configure-llm-endpoint.md) and [developing practices](03-developing-practices.md).
 
 ## References
 

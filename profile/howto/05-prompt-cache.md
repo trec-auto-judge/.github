@@ -1,6 +1,6 @@
 # 5. Prompt Cache
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Run workflows](run-workflows.md) · Next: [Meta-evaluation](meta-evaluation.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Run workflows](04-run-workflows.md) · Next: [Meta-evaluation](06-meta-evaluation.md).*
 
 LLM judges re-run constantly during development, and without a cache every re-run repeats every LLM call — slow, expensive, and noisy. Judges built on minima-llm get an SQLite-backed prompt cache that makes repeated runs instant and deterministic; this page explains how to switch it on, how it decides what counts as "the same prompt", how to debug misses, and how caching interacts with TIRA submissions.
 
@@ -22,7 +22,7 @@ The database lands at `{cache_dir}/minima_llm.db` (SQLite in WAL mode, safe for 
 
 Each response is stored under a SHA-256 hash of the request parameters — model, messages, temperature, max_tokens, and extras — so a hit requires the prompt to be *byte-identical*. Two practical consequences:
 
-- **Keep prompt construction deterministic.** Sort responses by `run_id` before building comparison pairs (a core [developing practice](developing-practices.md)); any nondeterministic ordering, timestamps, or dict-iteration randomness silently changes the hash and defeats the cache.
+- **Keep prompt construction deterministic.** Sort responses by `run_id` before building comparison pairs (a core [developing practice](03-developing-practices.md)); any nondeterministic ordering, timestamps, or dict-iteration randomness silently changes the hash and defeats the cache.
 - **Model or parameter changes invalidate everything** for those requests — expected behavior, not a bug.
 
 ## Refreshing and debugging
@@ -52,7 +52,7 @@ TIRA runs your judge in a sandbox and controls the cache mount through two `tira
 - `--cache-behaviour deterministic` declares that repeated runs with the same cache produce the same output — information TIRA uses for reproducibility.
 - `--mount-cache '$CACHE_DIR=EMPTY_DIR'` mounts a fresh, empty, writable directory as your cache, forcing all-fresh LLM calls; after the run, the output contains the populated cache for potential reuse. Mounting a pre-populated directory instead (`--mount-cache "CACHE_DIR=my-cache-dir"`) replays a bundled cache — handy for reproducing published results without an LLM endpoint.
 
-The [submission guide](submit-to-tira.md) shows these flags in a complete command.
+The [submission guide](07-submit-to-tira.md) shows these flags in a complete command.
 
 ## References
 

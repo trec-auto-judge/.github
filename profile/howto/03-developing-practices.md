@@ -1,6 +1,6 @@
 # 3. Developing Practices
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Configure your LLM endpoint](configure-llm-endpoint.md) · Next: [Run workflows](run-workflows.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Configure your LLM endpoint](02-configure-llm-endpoint.md) · Next: [Run workflows](04-run-workflows.md).*
 
 A judge plugs into the framework by implementing the `AutoJudge` protocol — up to three methods that the workflow runner calls in order — and by declaring which of them to run in a `workflow.yml`. This page shows the two common shapes (minimal and full protocol) and the conventions that keep judges reproducible and cache-friendly.
 
@@ -15,7 +15,7 @@ judges/myjudge/
   workflow.yml      # workflow configuration
 ```
 
-Remember to `git add judges/myjudge/` — new directories start untracked. The starter kit's example judges (`judges/complete_example/`, and the minimal LLM example `judges/tinyjudge/`) serve as reference during development; delete the ones you did not write before [submitting](submit-to-tira.md).
+Remember to `git add judges/myjudge/` — new directories start untracked. The starter kit's example judges (`judges/complete_example/`, and the minimal LLM example `judges/tinyjudge/`) serve as reference during development; delete the ones you did not write before [submitting](07-submit-to-tira.md).
 
 ## Minimal judge: leaderboard only
 
@@ -98,9 +98,9 @@ Separate classes per phase (`nugget_class`, `qrels_class`, `judge_class`) work a
 
 ## Conventions that keep judges well-behaved
 
-- **Read the endpoint from `llm_config`, never hardcode keys or URLs** — on TIRA the organizer injects the endpoint through this parameter, as explained in [Configure your LLM endpoint](configure-llm-endpoint.md).
+- **Read the endpoint from `llm_config`, never hardcode keys or URLs** — on TIRA the organizer injects the endpoint through this parameter, as explained in [Configure your LLM endpoint](02-configure-llm-endpoint.md).
 - **Describe every measure.** Give each `MeasureSpec` a `description` (what it represents, its range, how to read it); these export to `measures.yml` alongside your leaderboard and document your judge for organizers and downstream tooling.
-- **Sort before you compare.** Order responses by `run_id` before building comparison pairs, so prompts — and therefore [prompt-cache](prompt-cache.md) keys — stay identical across runs.
+- **Sort before you compare.** Order responses by `run_id` before building comparison pairs, so prompts — and therefore [prompt-cache](05-prompt-cache.md) keys — stay identical across runs.
 - **Accept the injected output parameters.** All judge methods receive auto-filled `filebase: str = "default"` and `outdir: Path = Path(".")` for constructing output paths; declare them explicitly. Setting `filebase: "{_name}"` in `workflow.yml` names output files after the variant or sweep being run.
 - **Layer configuration as env → yaml → cli**, each overriding the previous — the same rule the framework applies to LLM config.
 

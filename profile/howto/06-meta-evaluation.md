@@ -1,6 +1,6 @@
 # 6. Meta-Evaluation
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Prompt cache](prompt-cache.md) · Next: [Submit to TIRA](submit-to-tira.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Prompt cache](05-prompt-cache.md) · Next: [Submit to TIRA](07-submit-to-tira.md).*
 
 Knowing whether your judge *agrees with human assessors* — not just whether it runs — is what meta-evaluation answers: it correlates the leaderboard your judge produces against a ground-truth leaderboard, so you can iterate on judge quality before submitting. The tooling lives in the [auto-judge-evaluate](https://github.com/trec-auto-judge/auto-judge-evaluate) package, installed with the starter kit's `.[evaluate]` extra (included in `.[all]`).
 
