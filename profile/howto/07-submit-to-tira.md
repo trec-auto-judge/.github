@@ -8,9 +8,10 @@ If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the st
 
 ## Step 1 — Meet the submission requirements
 
+- **Your judge runs locally, end to end.** With your LLM environment loaded (`OPENAI_BASE_URL`/`OPENAI_MODEL`/`OPENAI_API_KEY`, plus `CACHE_DIR` for caching judges), `bash run_kiddie.sh` completes without errors — fixing problems locally beats debugging them through a Docker build.
 - **All code lives in a git repository** (private or even local-only is fine — we never check that changes are pushed).
-- **The repository is clean.** `git status --porcelain` must print nothing; any output means uncommitted or untracked changes that you need to commit or `.gitignore`.
-- **The currently checked-out branch is what gets submitted**, and only its *committed* state — uncommitted edits are silently excluded. Check with `git branch --show-current`.
+- **The repository is clean.** `git status --porcelain` must print nothing; any output means uncommitted or untracked changes. Commit your code; add build artifacts, caches, and output directories to `.gitignore`.
+- **The currently checked-out branch is what gets submitted**, and only its *committed* state — uncommitted edits are silently excluded. We recommend submitting from `main`; whatever `git branch --show-current` prints is what runs.
 - **`pytest` completes without failures.**
 - **Example judges you did not write are deleted** so they do not ship with your submission.
 - **A Dockerfile at the repo root** specifies how your software is dockerized. Making it [dev-container](https://containers.dev/) compatible lets you develop directly inside the container.
@@ -19,11 +20,19 @@ If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the st
 
 ## Step 2 — Install tira-cli and start Docker
 
+Inside your activated venv (the starter kit's `.[all]` extra may already provide it):
+
 ```bash
-pip3 install --upgrade tira
+uv pip install --upgrade tira
 ```
 
-The Docker (or podman) daemon must be **running** when you submit — the build-and-test happens on your machine before anything is uploaded.
+(`pip3 install --upgrade tira` works equally outside a venv.)
+
+The Docker (or podman) daemon must be **running** when you submit — the build-and-test happens on your machine before anything is uploaded. Checking early saves a late surprise:
+
+```bash
+tira-cli verify-installation
+```
 
 **Podman users:** if the build fails at the first `FROM` step with `no policy.json file found`, create the missing signature-policy file (podman-only; Docker never needs it):
 
@@ -40,10 +49,10 @@ Fetch your authentication token from TIRA: navigate to the [TREC AutoJudge task]
 
 ```bash
 tira-cli login --token AUTH-TOKEN
-tira-cli verify-installation
+tira-cli verify-installation --task trec-auto-judge --team YOUR-TEAM
 ```
 
-A healthy verification looks like:
+Scoping the verification to your task and team confirms not just the installation but also that your login and registration line up. A healthy verification looks like:
 
 <img width="821" height="180" alt="tira-cli verify-installation output" src="https://github.com/user-attachments/assets/51160132-eb19-4da3-8892-8a53adb41c71" />
 
@@ -74,6 +83,39 @@ Three details that trip people up:
 When the dry run passes, remove `--dry-run` and run the same command to upload.
 
 If anything fails — or you cannot run Docker locally at all — reach out in the private TIRA chat that we opened with your team at registration ([prerequisites](README.md#prerequisites)), and we will find a way to get your submission in.
+
+## A complete session
+
+Condensed from a real, successful submission (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit), `queryonly` judge):
+
+```bash
+git clone git@github.com:YOUR-USER/YOUR-JUDGE.git && cd YOUR-JUDGE
+uv venv && source .venv/bin/activate
+uv pip install -e '.[all]'
+
+export OPENAI_API_KEY=... OPENAI_BASE_URL=... OPENAI_MODEL=... CACHE_DIR=./cache
+bash run_kiddie.sh                    # local end-to-end test
+
+git status --porcelain                # must be empty: gitignore build artifacts, commit the rest
+git branch --show-current             # recommended: main
+
+uv pip install --upgrade tira
+tira-cli login --token XXXXX
+tira-cli verify-installation --task trec-auto-judge --team YOUR-TEAM
+
+tira-cli code-submission --dry-run --path . \
+    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
+    --task trec-auto-judge --dataset kiddie-20260605-training \
+    --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+
+# dry run green? same command without --dry-run:
+tira-cli code-submission --path . \
+    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
+    --task trec-auto-judge --dataset kiddie-20260605-training \
+    --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+```
 
 ## References
 
