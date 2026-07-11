@@ -1,6 +1,6 @@
 # 4. Run Workflows
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Developing practices](03-developing-practices.md) · Next: [Prompt cache](05-prompt-cache.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Develop an AutoJudge](03-develop-an-autojudge.md) · Next: [Prompt cache](05-prompt-cache.md).*
 
 The `auto-judge run` command executes your judge as declared in its `workflow.yml` — reading RAG responses and topics, calling your protocol methods in phase order, and writing the leaderboard and companion files to an output directory. This page covers the everyday commands; the [workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) in auto-judge-base remains the canonical reference for the full `workflow.yml` schema (variants, sweeps, lifecycle flags, settings).
 
@@ -32,7 +32,22 @@ auto-judge run --help    # all options
 | `-N KEY=VALUE` / `-J KEY=VALUE` | override a nugget / judge setting |
 | `--llm-config FILE` | point at an LLM config ([details](02-configure-llm-endpoint.md)) |
 
-Variants and sweeps let one `workflow.yml` express a family of configurations — see the workflow guide's [variants](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md#variants) and [parameter sweeps](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md#parameter-sweeps) sections.
+Variants and sweeps let one `workflow.yml` express a whole family of configurations. A variant names a block of setting overrides — with `filebase: "{_name}"`, each variant's output files carry its name automatically:
+
+```yaml
+settings:
+  filebase: "{_name}"
+
+variants:
+  best:
+    judge_settings:
+      grading: "response"
+  best-docs:
+    judge_settings:
+      grading: "docs"
+```
+
+`auto-judge run --variant best-docs ...` then produces `best-docs.eval.txt` and friends. Sweeps generalize this to a grid over setting values — the workflow guide's [variants](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md#variants) and [parameter sweeps](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md#parameter-sweeps) sections give the full semantics.
 
 ## What lands in the output directory
 

@@ -22,7 +22,7 @@ The database lands at `{cache_dir}/minima_llm.db` (SQLite in WAL mode, safe for 
 
 Each response is stored under a SHA-256 hash of the request parameters — model, messages, temperature, max_tokens, and extras — so a hit requires the prompt to be *byte-identical*. Two practical consequences:
 
-- **Keep prompt construction deterministic.** Sort responses by `run_id` before building comparison pairs (a core [developing practice](03-developing-practices.md)); any nondeterministic ordering, timestamps, or dict-iteration randomness silently changes the hash and defeats the cache.
+- **Keep prompt construction deterministic.** Sort responses by `run_id` before building comparison pairs (a core [developing practice](03-develop-an-autojudge.md)); any nondeterministic ordering, timestamps, or dict-iteration randomness silently changes the hash and defeats the cache.
 - **Model or parameter changes invalidate everything** for those requests — expected behavior, not a bug.
 
 ## Refreshing and debugging

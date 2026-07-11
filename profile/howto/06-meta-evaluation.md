@@ -19,7 +19,7 @@ auto-judge-evaluate meta-evaluate \
 
 The output reports one correlation row per (judge, truth measure, eval measure). Because the kiddie truth is **synthetic**, treat these numbers as a pipeline check, not a quality signal — meaningful correlations require real assessments.
 
-Correlation methods are selectable (`--correlation kendall`, `pearson`, `spearman`, `tauap_b`, or top-heavy variants like `kendall@15`), and `--on-missing` controls how runs missing from either side are handled.
+Correlation methods are selectable (`--correlation kendall`, `pearson`, `spearman`, `tauap_b`, or top-heavy variants like `kendall@15`), and `--on-missing` controls how runs missing from either side are handled. Rank correlations (Kendall/Spearman) reward getting the *ordering* of systems right — usually what matters for a leaderboard — while Pearson also rewards matching the score magnitudes; top-heavy variants like `kendall@15` weight agreement among the best systems more, which mirrors how leaderboards are actually read.
 
 ## Meta-evaluation service
 

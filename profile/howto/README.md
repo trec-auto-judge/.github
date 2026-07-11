@@ -6,13 +6,13 @@ Welcome! Participating in TREC AutoJudge means building an automatic judge for R
 |---|----------|-------------|
 | 1 | [Set up your dev environment](01-setup-environment.md) | fork the starter kit, install with `uv`, verify on the kiddie dataset |
 | 2 | [Configure your LLM endpoint](02-configure-llm-endpoint.md) | pick an LLM client (any OpenAI-compatible one), configure it locally and for TIRA |
-| 3 | [Developing practices](03-developing-practices.md) | implement the `AutoJudge` protocol and follow the conventions that keep judges reproducible |
+| 3 | [Develop an AutoJudge](03-develop-an-autojudge.md) | implement the `AutoJudge` protocol and follow the conventions that keep judges reproducible |
 | 4 | [Run workflows](04-run-workflows.md) | run your judge with `auto-judge run`, use variants, dev flags, and multi-dataset runs |
 | 5 | [Prompt cache](05-prompt-cache.md) | make repeated LLM runs instant and deterministic; debug cache misses |
 | 6 | [Meta-evaluation](06-meta-evaluation.md) | measure how well your judge agrees with ground truth |
 | 7 | [Submit to TIRA](07-submit-to-tira.md) | dry-run and upload your judge as a code submission |
 
-Newcomers should read 1 → 7 in order; returning participants can jump straight to the activity they need. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit provides two interactive walkthroughs: `/autojudge-setup` (activities 1–4) and `/autojudge-submit` (activity 7).
+Newcomers should read 1 → 7 in order; returning participants can jump straight to the activity they need. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit provides three interactive walkthroughs that together cover every activity: `/autojudge-setup` (1–2), `/autojudge-develop` (3–6), and `/autojudge-submit` (7).
 
 This guide is the **canonical documentation** for participating — the [starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) README and skills intentionally defer to it. Deep reference material stays with the libraries it documents ([auto-judge-base](https://github.com/trec-auto-judge/auto-judge-base), [minima-llm](https://github.com/trec-auto-judge/minima-llm), [auto-judge-evaluate](https://github.com/trec-auto-judge/auto-judge-evaluate)); each activity page links to the relevant sections.
 

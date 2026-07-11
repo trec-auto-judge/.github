@@ -1,8 +1,8 @@
 # 2. Configure Your LLM Endpoint
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Set up your dev environment](01-setup-environment.md) · Next: [Developing practices](03-developing-practices.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Set up your dev environment](01-setup-environment.md) · Next: [Develop an AutoJudge](03-develop-an-autojudge.md).*
 
-Every LLM-based judge receives its endpoint, model, and API key through a single injected object — the `llm_config` parameter passed to your judge methods — and must read them from there rather than hardcode them. That indirection is what allows the same judge code to run against your local endpoint during development and against the organizer-provided endpoint inside TIRA's sandbox, unchanged.
+Every LLM-based judge receives its endpoint, model, and API key through a single injected object — the `llm_config` parameter passed to your judge methods — and must read them from there rather than hardcode them. That indirection is what allows the same judge code to run against your local endpoint during development and against the organizer-provided endpoint inside TIRA's sandbox, unchanged. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit's `/autojudge-setup` skill walks you through this page together with the environment setup.
 
 ## What your judge receives
 

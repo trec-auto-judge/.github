@@ -58,7 +58,7 @@ bash run_kiddie.sh
 pytest
 ```
 
-Any failure at this point signals an environment problem — fix it now, before writing judge code. Once both pass, continue with [configuring your LLM endpoint](02-configure-llm-endpoint.md) and [developing practices](03-developing-practices.md).
+Any failure at this point signals an environment problem — fix it now, before writing judge code. Once both pass, continue with [configuring your LLM endpoint](02-configure-llm-endpoint.md) and [developing practices](03-develop-an-autojudge.md).
 
 ## References
 
