@@ -3,7 +3,7 @@
 * [Info about TREC Auto-Judge](https://trec-auto-judge.cs.unh.edu/): What is this about?
 * [Data Set](https://trec-auto-judge.cs.unh.edu/datareleases/): Grab the pilot data to participate!
 * [Starter Kit](https://github.com/trec-auto-judge/auto-judge-starter-kit)  Start developing your auto-judge!
-* [Submission HowTo](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/README.md): Step-by-step guide on how to submit your auto-judge systems.
+* [Participant HowTo](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/README.md): The canonical step-by-step guide, one page per activity — [setup](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/setup-environment.md), [LLM endpoint](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/configure-llm-endpoint.md), [developing](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/developing-practices.md), [running](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/run-workflows.md), [prompt cache](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/prompt-cache.md), [meta-evaluation](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/meta-evaluation.md), and [submission](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/submit-to-tira.md).
 * [Meta-evaluation](https://github.com/trec-auto-judge/auto-judge-evaluate) For local evaluation and development.
 
 ![Auto-Judge](examiner-logo-animated.gif)
