@@ -64,6 +64,15 @@ pip3 install --upgrade tira
 
 Note that the Docker (or podman) daemon must be **running** when you submit — `tira-cli code-submission` builds and tests the image locally before uploading, so an installed-but-stopped daemon will cause the submission to fail.
 
+**Podman users:** podman requires a container-signature policy file that some installations are missing. If the build fails at the first `FROM` step with `no policy.json file found`, create a permissive default (no root needed):
+
+```
+mkdir -p ~/.config/containers
+printf '{\n  "default": [{"type": "insecureAcceptAnything"}]\n}\n' > ~/.config/containers/policy.json
+```
+
+(This file is host/user configuration for podman only; Docker does not use it.)
+
 We have prepared a set of hello world examples in the [AutoJudge Starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) that we recommend you to run on your machine.
 
 - A naive auto judge system that shows the complete process without dependencies to an LLM: [https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive#submit-to-tira)
@@ -79,7 +88,9 @@ If you have familarized yourself with those examples and the approaches work on 
 <details>
 <summary>Step 2: Ensure that your approach works on your machine</summary>
 
-Please get your approach running in the `auto-judge run` framework. When this works, you can embedd your approach in a similar `tira-cli` command as the [naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive) or [tiny](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge) judges.
+Please get your approach running in the `auto-judge run` framework. For starter-kit-based judges we recommend installing the full toolchain with `uv pip install -e '.[all]'` — always use `.[all]` to be sure you have everything needed to test, submit, and evaluate. If you are still setting up your environment, you can start coding right away with the lightweight `uv pip install -e .` and switch to `.[all]` once you are ready.
+
+When this works, you can embedd your approach in a similar `tira-cli` command as the [naive](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/naive) or [tiny](https://github.com/trec-auto-judge/auto-judge-starter-kit/tree/main/judges/tinyjudge) judges.
 
 </details>
 
