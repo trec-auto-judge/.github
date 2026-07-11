@@ -54,7 +54,16 @@ litellm.cache = Cache(type="disk", disk_cache_dir=os.environ["CACHE_DIR"])
 response = litellm.completion(model=..., messages=..., caching=True)
 ```
 
-(Requires the `litellm[caching]` extra; litellm's `cache={"no-cache": True}` per-request option mirrors force-refresh.) DSPy's built-in cache follows the same pattern — configure its disk location under `$CACHE_DIR`. Whatever the library, resist its Redis/S3/semantic backends for submissions (requirement 2 above), and debug misses with that library's own tooling; the *method* from Option A — trace what goes into the key, diff two runs — carries over even where `MINIMA_TRACE_FILE` does not.
+(Requires the `litellm[caching]` extra; litellm's `cache={"no-cache": True}` per-request option mirrors force-refresh.) LangChain's cache works the same way — verified in practice by the LangChain example judge:
+
+```python
+from langchain_community.cache import SQLiteCache
+from langchain_core.globals import set_llm_cache
+
+set_llm_cache(SQLiteCache(database_path=f"{os.environ['CACHE_DIR']}/langchain_cache.db"))
+```
+
+DSPy's built-in cache follows the same pattern — configure its disk location under `$CACHE_DIR`. Whatever the library, resist its Redis/S3/semantic backends for submissions (requirement 2 above), and debug misses with that library's own tooling; the *method* from Option A — trace what goes into the key, diff two runs — carries over even where `MINIMA_TRACE_FILE` does not.
 
 ## Caching on TIRA
 

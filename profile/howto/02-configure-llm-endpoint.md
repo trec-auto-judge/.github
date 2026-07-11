@@ -78,6 +78,15 @@ Inside TIRA your judge runs in a sandbox without internet access, so the endpoin
 
 Keeping both files in your repo — `llm-config.dev.yml` for development, `llm-config.yml` with preferences for submission — covers both worlds cleanly.
 
+## Troubleshooting
+
+- **`404 No endpoints found for <model>`** (or similar) usually means a stale model identifier — hosted providers rename and retire models. List what your endpoint actually serves and pick a current id:
+  ```bash
+  curl -s "$OPENAI_BASE_URL/models" -H "Authorization: Bearer $OPENAI_API_KEY" | head
+  ```
+- **Overriding a shared environment script.** Because configuration layers as env → yaml → cli, a later `export OPENAI_MODEL=...` (or a `--llm-config` file) overrides whatever a sourced team script set — no need to edit the shared script.
+- **Silent empty results.** When every LLM call fails (bad key, dead endpoint, stale model), judges tend to produce empty output, which the framework's verification then rejects (e.g. `Empty nugget banks for N topic(s)`). Treat that error as "check the endpoint first", not as a bug in your judge logic.
+
 ## References
 
 - [LLM model configuration (llm_resolver)](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/llm_resolver/README.md) — the two config formats, resolution rules, troubleshooting

@@ -130,6 +130,8 @@ Nuggets capture what a good answer should contain — as questions (`NuggetQuest
 
 The judging phase then typically grades every (response, nugget) pair and aggregates — coverage, average grade, max grade — into the leaderboard measures.
 
+Note that the workflow runner verifies nugget banks before judging: a topic with an *empty* bank fails the run (`NuggetBanksVerificationError`). An empty bank usually means the LLM calls failed silently — check the [endpoint configuration](02-configure-llm-endpoint.md#troubleshooting) before suspecting your extraction logic.
+
 → API: [NuggetBank format](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/nugget_data/README.md) — the v3 data model with verification
 
 ### Creating qrels
