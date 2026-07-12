@@ -34,9 +34,9 @@ The `.[all]` extra installs everything needed to develop, test, evaluate, and su
 - `uv venv` creates the environment but does **not** activate it. If you skip `source .venv/bin/activate`, the install may land in a different environment. Always activate first, then install.
 - If you are still sorting out heavier tooling and just want to start coding, the lightweight `uv pip install -e .` installs only the judge runtime; switch to `.[all]` once you are ready to test or submit.
 
-## Step 3 — Make the repository yours
+## Step 3 — Make the repository yours (mandatory)
 
-Edit `pyproject.toml`:
+The starter kit is a bare-bones template, and building on it **requires** making it your own — a submission that still introduces itself as `auto-judge-starterkit` counts as unconfigured. Edit `pyproject.toml`:
 
 | Field | Change to |
 |-------|-----------|
@@ -50,7 +50,7 @@ Keep `[tool.setuptools.packages.find]` with `include = ["judges*"]` unchanged �
 uv pip install -e '.[all]' --refresh
 ```
 
-Also replace the README's starter-kit overview with a description of your own approach.
+Also replace the README's starter-kit overview with a description of your own approach, and put your implementation in its own `judges/<yourjudge>/` directory (the [develop page](03-develop-an-autojudge.md) shows how) rather than editing the examples in place.
 
 ## Step 4 — Verify the environment
 
