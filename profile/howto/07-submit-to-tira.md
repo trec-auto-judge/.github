@@ -12,7 +12,7 @@ If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the st
 - **All code lives in a git repository** (private or even local-only is fine — we never check that changes are pushed).
 - **The repository is clean.** `git status --porcelain` must print nothing; any output means uncommitted or untracked changes. Commit your code; add build artifacts, caches, and output directories to `.gitignore`.
 - **The currently checked-out branch is what gets submitted**, and only its *committed* state — uncommitted edits are silently excluded. We recommend submitting from `main`; whatever `git branch --show-current` prints is what runs.
-- **`pytest` completes without failures.**
+- **`pytest` completes without failures** — `tira-cli` runs the test suite as part of the submission, so red tests block it. Beyond your own judge tests, the starter-kit suite checks that every judge's workflow parses and its classes import (minimum compatibility), that the installed framework versions (`autojudge-base`, `tira`) are up to date with the template's requirements, and that the template was customized (project name and README changed).
 - **Example judges you did not write are deleted** so they do not ship with your submission.
 - **The template is customized**: `pyproject.toml` no longer says `name = "auto-judge-starterkit"`, and the README describes *your* judge — an unrenamed template reads as an unconfigured submission.
 - **A Dockerfile at the repo root** specifies how your software is dockerized. Making it [dev-container](https://containers.dev/) compatible lets you develop directly inside the container.
