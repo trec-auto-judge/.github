@@ -14,7 +14,7 @@ All three protocol methods (`judge`, `create_nuggets`, `create_qrels`) get an `l
 | `model` | resolved model identifier |
 | `api_key` | key/token (may be empty for local endpoints) |
 | `cache_dir` | prompt-cache directory, if enabled (see [Prompt cache](05-prompt-cache.md)) |
-| `raw` | the full config dict, for any extra backend parameters |
+| `raw` | extra config dict — empty under environment-only configuration; retained so the `MinimaLlmConfig.from_dict(llm_config.raw)` pattern keeps working |
 
 ## Choose your LLM client — any OpenAI-compatible client works
 
@@ -42,7 +42,6 @@ export OPENAI_MODEL="llama-3.3-70b-instruct"
 export OPENAI_API_KEY="sk-..."                       # optional for unsecured local endpoints
 export CACHE_DIR="./cache"                           # optional, enables prompt caching
 ```
-
 
 ## On TIRA: how the endpoint reaches your judge
 
