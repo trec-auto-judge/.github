@@ -18,19 +18,51 @@ All three protocol methods (`judge`, `create_nuggets`, `create_qrels`) get an `l
 
 ## Choose your LLM client — any OpenAI-compatible client works
 
-The framework hands you endpoint coordinates, not a client, so you pick the library:
+The framework hands you endpoint coordinates, not a client, so you pick the library. Whichever you choose, the TIRA-compatible pattern is the same: **construct the client explicitly from the injected `llm_config`** rather than relying on the library's own environment lookup — the libraries disagree on variable names (the openai SDK reads `OPENAI_BASE_URL`, litellm's convention is `OPENAI_API_BASE`), and explicit construction makes the routing independent of those conventions. The starter kit's `tests/test_endpoint_contract.py` verifies the routing either way, and a `--dry-run` submission with `--cache-behaviour deterministic` additionally proves your client's cache survives an endpoint swap.
 
-- **minima-llm** (used by the starter-kit examples) adds prompt caching, rate limiting, and retry on top of a zero-dependency client:
-  ```python
-  from minima_llm import MinimaLlmConfig, OpenAIMinimaLlm
+### minima-llm
 
-  full_config = MinimaLlmConfig.from_dict(llm_config.raw)
-  backend = OpenAIMinimaLlm(full_config)
-  ```
-- **DSPy** wires in through minima-llm's adapter, so DSPy programs inherit caching and retry while still following the injected endpoint: `run_dspy_batch(...)` wraps your backend as a `MinimaLlmDSPyLM` and binds it via `dspy.context`. See [minima-llm — With DSPy](https://github.com/trec-auto-judge/minima-llm#quick-start).
-- **litellm, LangChain, the raw `openai` SDK, or plain HTTP** work too — read `llm_config.base_url` / `.model` / `.api_key` and construct your client from them. minima-llm's [proxy mode](https://github.com/trec-auto-judge/minima-llm#proxy-mode) can add caching to any such client without code changes.
+The starter-kit default, adding prompt caching, rate limiting, retry, and batching on top of a zero-dependency client:
 
-Whatever you choose, never bake an endpoint or key into your code — a hardcoded value would break under TIRA, where the organizer decides which model your judge gets.
+```python
+from minima_llm import MinimaLlmConfig, MinimaLlmRequest, OpenAIMinimaLlm
+
+full_config = MinimaLlmConfig.from_dict(llm_config.raw)   # falls back to env when raw is empty
+backend = OpenAIMinimaLlm(full_config)
+responses = backend.run_batched([MinimaLlmRequest(...), ...])
+```
+
+Environment notes: minima-llm natively reads the exact task-provided names (`OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY`, `CACHE_DIR`), so no rerouting is needed. Its cache key deliberately excludes the endpoint URL, which makes it compatible with TIRA's deterministic re-execution out of the box. DSPy programs wire in through minima-llm's adapter and inherit all of this: `run_dspy_batch(...)` binds your backend as a `MinimaLlmDSPyLM` via `dspy.context` — see [minima-llm — With DSPy](https://github.com/trec-auto-judge/minima-llm#quick-start).
+
+### LangChain
+
+Construct `ChatOpenAI` explicitly from the injected config — LangChain has no endpoint management of its own (an argument-less client would silently fall back to the *openai SDK's* environment lookup, which works for `OPENAI_BASE_URL` but keeps the precedence implicit):
+
+```python
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model=llm_config.model, base_url=llm_config.base_url,
+                 api_key=llm_config.api_key or "-", temperature=0.0)
+```
+
+Environment notes: two TIRA-specific pitfalls come with LangChain. Its cache key includes `openai_api_base`, so a plain `SQLiteCache` breaks deterministic re-execution (the endpoint gets swapped, every lookup misses) — normalize the endpoint out of the key, as the [LangChain example judge](https://github.com/laura-dietz/langchain-starterkit) does with its endpoint-agnostic cache wrapper. And extra request parameters need their own environment route (the example judge reads `OPENAI_EXTRA_BODY` as JSON), since `llm_config.raw` is empty under environment-only configuration.
+
+### litellm
+
+Pass the endpoint per call (or via a router), again explicitly from the injected config; for an OpenAI-compatible endpoint the model name takes litellm's `openai/` provider prefix:
+
+```python
+import litellm
+
+response = litellm.completion(model=f"openai/{llm_config.model}",
+                              api_base=llm_config.base_url,
+                              api_key=llm_config.api_key,
+                              messages=[...], temperature=0.0)
+```
+
+Environment notes: litellm's own environment convention is `OPENAI_API_BASE`, *not* the task-provided `OPENAI_BASE_URL` — relying on litellm's env pickup would miss the injected endpoint, which is exactly why explicit `api_base=` is the safe pattern (the framework's `from_env` tolerates both names, but your client code should not depend on that). For caching, use litellm's **disk** backend pointed at the framework's directory (`litellm.cache = Cache(type="disk", disk_cache_dir=os.environ["CACHE_DIR"])`, per the [prompt cache page](05-prompt-cache.md)) — hosted backends (Redis/S3) cannot connect inside the sandbox — and verify with a deterministic dry run that its cache keys survive the endpoint swap.
+
+The raw `openai` SDK and plain HTTP follow the same explicit-construction rule; minima-llm's [proxy mode](https://github.com/trec-auto-judge/minima-llm#proxy-mode) can add contract-compatible caching to any such client without code changes. Whatever you choose, never bake an endpoint or key into your code — a hardcoded value would break under TIRA, where the organizer decides which model your judge gets.
 
 ## Local development
 
