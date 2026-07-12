@@ -63,7 +63,7 @@ auto-judge run --llm-config llm-config.dev.yml --workflow ...
 
 Inside TIRA your judge runs in a sandbox without internet access, so the endpoint must be injected. Two mechanisms exist:
 
-1. **Forwarded environment variables.** When you submit, `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` carries your shell's values into the sandbox, where they populate `llm_config` exactly as in local development. The [submission guide](07-submit-to-tira.md) shows this in context.
+1. **Forwarded environment variables.** `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` registers the variable **names** as your judge's runtime requirements. Values are supplied per run by whoever runs it: your shell for the local test, and the organizers — with their cluster-internal endpoint and their choice of model — for runs on TIRA. Your judge cannot pin a specific external endpoint into remote runs, by design. The [submission guide](07-submit-to-tira.md) shows this in context.
 
 2. **Model preferences (submission mode).** Instead of naming an endpoint, your repo ships an `llm-config.yml` declaring an ordered wish list that the organizers resolve against their model pool:
 

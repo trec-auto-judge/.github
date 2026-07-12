@@ -18,6 +18,7 @@ If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the st
 - **A Dockerfile at the repo root** specifies how your software is dockerized. Making it [dev-container](https://containers.dev/) compatible lets you develop directly inside the container.
 - **The sandbox has no internet access.** Your judge receives its LLM endpoint through forwarded environment variables or model preferences — see [Configure your LLM endpoint](02-configure-llm-endpoint.md). Nothing else on the network will be reachable.
 - **No secrets in the image.** Never `COPY`/`ADD` API keys into the Dockerfile; pass them only via `--forward-environment-variable` so they are injected at run time.
+- **Submit from a clean shell.** Current `tira-cli` versions record the submitting shell's environment as build metadata, so unset (or never export) secrets unrelated to the submission before running `code-submission`.
 
 ## Step 2 — Install tira-cli and start Docker
 

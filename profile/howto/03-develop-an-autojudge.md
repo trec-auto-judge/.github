@@ -171,7 +171,7 @@ Anything you might want to vary — prompt style, number of nuggets, grading sca
 - **Sort before you compare.** Order responses by `run_id` before building comparison pairs, so prompts — and therefore [prompt-cache](05-prompt-cache.md) keys — stay identical across runs.
 - **Accept the injected output parameters.** All judge methods receive auto-filled `filebase: str = "default"` and `outdir: Path = Path(".")` for constructing output paths; declare them explicitly. Setting `filebase: "{_name}"` in `workflow.yml` names output files after the variant or sweep being run.
 - **Verify before returning.** The `build(expected_topic_ids=...)`, `leaderboard.verify(...)`, and `qrels.verify(...)` checks exist to fail fast — silent topic drop-out is the classic way a judge produces a wrong-but-plausible leaderboard.
-- **Preflight the endpoint.** Make one probe LLM call at the start of each phase and raise on failure — a stale model id or bad key then surfaces as one clear provider error instead of hundreds of failed batch calls (see [endpoint troubleshooting](02-configure-llm-endpoint.md#troubleshooting)).
+- **Preflight the endpoint — but warn, don't raise.** One probe LLM call at the start of each phase surfaces a stale model id or bad key as one clear provider error instead of hundreds of failed batch calls (see [endpoint troubleshooting](02-configure-llm-endpoint.md#troubleshooting)). Make it a *warning*: a judge with a populated [prompt cache](05-prompt-cache.md) must be able to complete with no working endpoint at all — TIRA's deterministic re-execution runs it exactly that way. Let the all-calls-failed condition be the hard error instead.
 
 ## References
 
