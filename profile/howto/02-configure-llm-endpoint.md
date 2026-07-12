@@ -67,7 +67,7 @@ Inside TIRA your judge runs in a sandbox without internet access, so the endpoin
 
 Your judge **must use the task-provided environment variables as-is** — `OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY` — and route their values into whichever LLM client it uses. Every client has a way to set these explicitly (litellm: `api_base`/`api_key` arguments; LangChain: `base_url`/`api_key`; the openai SDK likewise). A judge with a hardcoded endpoint or model **will not run on TIRA**: the sandbox has no route to your provider, and we choose which model your judge gets — the failure only surfaces after the code is submitted, in a remote run you cannot debug.
 
-To catch this before submission, the starter kit's `tests/test_endpoint_contract.py` runs each judge against a local pretend endpoint and asserts that the judge contacts it, with the injected model. Judges that make no LLM calls at all belong in the `NON_LLM_JUDGES` set at the top of that test file, which marks their case as expected-to-fail (`xfail`) — do not delete the test.
+To catch this before submission, the starter kit's `tests/test_endpoint_contract.py` runs each judge against a local pretend endpoint and asserts that the judge contacts it, with the injected model. Judges that make no LLM calls at all declare `uses_llm: false` in their own `workflow.yml`, which marks their case as expected-to-fail (`xfail`) — do not delete the test.
 
 Two injection mechanisms exist:
 
