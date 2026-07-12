@@ -109,7 +109,41 @@ Separate classes per phase (`nugget_class`, `qrels_class`, `judge_class`) work a
 
 ### Reading responses and topics
 
-Your judge receives an iterable of `Report` objects (one per system response: `metadata.run_id`, `metadata.topic_id`, the response text and sentences) and a sequence of `Request` objects (the evaluation topics: `request_id`, title, background, problem statement). Because RAG tracks differ in how they attach citations, `Report.get_sentences_with_citations()` normalizes the three sentence formats into one — reach for it whenever your judge needs to check what a response *cites* rather than just what it says.
+Your judge receives an iterable of `Report` objects (one system's answer to one topic) and a sequence of `Request` objects (the topics). The fields you actually reach for:
+
+**`Request`** — the evaluation topic:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `request_id` | `str` | topic id — the key that ties requests, reports, nuggets, and qrels together |
+| `title` | `str` | the query/topic title (the only always-present text field) |
+| `background` | `str?` | narrative context for the information need |
+| `problem_statement` | `str?` | what a good answer must resolve |
+| `collection_ids` | `list[str]?` | corpora the answers draw from |
+| `word_limit` / `limit` | `int?` | length budget the systems were held to |
+
+**`Report`** — one system response:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `metadata` | `ReportMetaData` | identifiers: `.run_id`, `.team_id`, `.topic_id` (aligns with `Request.request_id`) |
+| `responses` | `list[ReportSentence]` | the answer, sentence by sentence (each has `.text` and `.citations`) |
+| `references` | `list[str]?` | doc ids the response draws on; for index-style citations, the lookup table they resolve against |
+| `documents` | `dict[str, Document]?` | cited/retrieved documents by id, when the track ships them inline |
+| `ranking` | `list[RetrievedDocuments]?` | a retrieval run attached to the report, for judges that score retrieval |
+
+Rather than touch `responses` directly, prefer the accessors: `get_text()` (whole answer), `get_sentences()` (plain strings), `get_paragraphs()`, and — because the tracks disagree on how citations attach (RAGtime maps doc-id→confidence, NeuCLIR lists doc-ids, RAG'24 lists indices into `references`) — `get_sentences_with_citations()`, which normalizes all three into `NeuclirReportSentence` with `.citations` as a plain `list[str]` of doc ids. Reach for it whenever your judge cares what a response *cites*, not just what it says.
+
+**`Document`** — an entry in `Report.documents` (or a corpus you export):
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `id` | `str` | document id, matching what citations reference |
+| `text` | `str` | body text |
+| `title` / `url` | `str?` | when the source provides them |
+| `metadata` | `dict?` | track-specific extras (the model allows unknown keys) |
+
+Use `document.get_text()` to get title and body joined, rather than concatenating by hand.
 
 → API: [auto-judge-base — Data Loading Utilities](https://github.com/trec-auto-judge/auto-judge-base#data-loading-utilities)
 
