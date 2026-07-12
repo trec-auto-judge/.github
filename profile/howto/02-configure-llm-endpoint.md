@@ -18,21 +18,9 @@ All three protocol methods (`judge`, `create_nuggets`, `create_qrels`) get an `l
 
 ## Choose your LLM client — any OpenAI-compatible client works
 
-The framework hands you endpoint coordinates, not a client, so you pick the library. Whichever you choose, the TIRA-compatible pattern is the same: **construct the client explicitly from the injected `llm_config`** rather than relying on the library's own environment lookup — the libraries disagree on variable names (the openai SDK reads `OPENAI_BASE_URL`, litellm's convention is `OPENAI_API_BASE`), and explicit construction makes the routing independent of those conventions. The starter kit's `tests/test_endpoint_contract.py` verifies the routing either way, and a `--dry-run` submission with `--cache-behaviour deterministic` additionally proves your client's cache survives an endpoint swap.
+The framework hands you endpoint coordinates, not a client, so you pick the library — use whatever you are comfortable with; the three below are worked examples, not a ranked list or an endorsement. Whichever you choose, the TIRA-compatible pattern is the same: **construct the client explicitly from the injected `llm_config`** rather than relying on the library's own environment lookup — the libraries disagree on variable names (the openai SDK reads `OPENAI_BASE_URL`, litellm's convention is `OPENAI_API_BASE`), and explicit construction makes the routing independent of those conventions. The starter kit's `tests/test_endpoint_contract.py` verifies the routing either way, and a `--dry-run` submission with `--cache-behaviour deterministic` additionally proves your client's cache survives an endpoint swap.
 
-### minima-llm
-
-The starter-kit default, adding prompt caching, rate limiting, retry, and batching on top of a zero-dependency client:
-
-```python
-from minima_llm import MinimaLlmConfig, MinimaLlmRequest, OpenAIMinimaLlm
-
-full_config = MinimaLlmConfig.from_dict(llm_config.raw)   # falls back to env when raw is empty
-backend = OpenAIMinimaLlm(full_config)
-responses = backend.run_batched([MinimaLlmRequest(...), ...])
-```
-
-Environment notes: minima-llm natively reads the exact task-provided names (`OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY`, `CACHE_DIR`), so no rerouting is needed. Its cache key deliberately excludes the endpoint URL, which makes it compatible with TIRA's deterministic re-execution out of the box. DSPy programs wire in through minima-llm's adapter and inherit all of this: `run_dspy_batch(...)` binds your backend as a `MinimaLlmDSPyLM` via `dspy.context` — see [minima-llm — With DSPy](https://github.com/trec-auto-judge/minima-llm#quick-start).
+Whichever client you pick, judges make many similar LLM calls — one per response, per pair, or per nugget×response — so build the full list of requests first and hand it to a batched runner rather than looping over blocking calls; each library below has its own way to do this.
 
 ### LangChain
 
@@ -59,6 +47,22 @@ response = litellm.completion(model=f"openai/{llm_config.model}",
                               api_key=llm_config.api_key,
                               messages=[...], temperature=0.0)
 ```
+
+### minima-llm
+
+A batteries-included option that folds prompt caching, rate limiting, retry, and batching into one runner. Build the full list of requests and hand it to `run_batched`:
+
+```python
+from minima_llm import MinimaLlmConfig, MinimaLlmRequest, OpenAIMinimaLlm
+
+full_config = MinimaLlmConfig.from_dict(llm_config.raw)          # falls back to env when raw is empty
+backend = OpenAIMinimaLlm(full_config)
+responses = backend.run_batched([MinimaLlmRequest(...), ...])    # parallelizes, rate-limits, retries, caches
+```
+
+**DSPy** wires in through minima-llm's adapter: declare a `dspy.Signature` per judgment type — with explicit `reasoning` and `confidence` output fields — and run `run_dspy_batch(signature, items, converter, backend=...)`, which binds the backend as a `MinimaLlmDSPyLM` via `dspy.context` and yields structured outputs with the same batching and caching underneath (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit) judges work this way).
+
+Environment notes: minima-llm natively reads the exact task-provided names (`OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY`, `CACHE_DIR`), so no rerouting is needed, and its cache key deliberately excludes the endpoint URL — compatible with TIRA's deterministic re-execution out of the box. See [minima-llm — Quick Start & DSPy](https://github.com/trec-auto-judge/minima-llm#quick-start).
 
 Environment notes: litellm's own environment convention is `OPENAI_API_BASE`, *not* the task-provided `OPENAI_BASE_URL` — relying on litellm's env pickup would miss the injected endpoint, which is exactly why explicit `api_base=` is the safe pattern (the framework's `from_env` tolerates both names, but your client code should not depend on that). For caching, use litellm's **disk** backend pointed at the framework's directory (`litellm.cache = Cache(type="disk", disk_cache_dir=os.environ["CACHE_DIR"])`, per the [prompt cache page](05-prompt-cache.md)) — hosted backends (Redis/S3) cannot connect inside the sandbox — and verify with a deterministic dry run that its cache keys survive the endpoint swap.
 

@@ -147,14 +147,9 @@ Use `document.get_text()` to get title and body joined, rather than concatenatin
 
 → API: [auto-judge-base — Data Loading Utilities](https://github.com/trec-auto-judge/auto-judge-base#data-loading-utilities)
 
-### Calling the LLM in batches
+### Calling the LLM
 
-Judges make many similar LLM calls — one per response, per pair, or per nugget×response — so build the full request list first and hand it to a batched runner instead of looping over blocking calls. Two starter-kit-proven patterns:
-
-- **Plain prompts** (see `judges/tinyjudge/`): construct one `MinimaLlmRequest` per item, then let `OpenAIMinimaLlm(config).run_batched(requests)` parallelize, rate-limit, retry, and cache.
-- **DSPy signatures** (see the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit)): declare a `dspy.Signature` per judgment type — with explicit `reasoning` and `confidence` output fields — then run `run_dspy_batch(signature, items, converter, backend=...)` from minima-llm's DSPy adapter, gaining structured outputs with the same batching and caching underneath.
-
-Either way, take the endpoint from `llm_config` as described in [Configure your LLM endpoint](02-configure-llm-endpoint.md).
+Building the judgments means many similar LLM calls — one per response, per pair, or per nugget×response. Take the endpoint from the injected `llm_config` and prefer a batched runner over a loop of blocking calls. [Configure your LLM endpoint](02-configure-llm-endpoint.md#choose-your-llm-client--any-openai-compatible-client-works) covers the client choices (LangChain, litellm, minima-llm), their batching APIs, and how to run DSPy signatures.
 
 → API: [minima-llm — Quick Start & DSPy](https://github.com/trec-auto-judge/minima-llm#quick-start)
 

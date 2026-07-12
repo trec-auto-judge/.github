@@ -21,7 +21,7 @@ Any caching mechanism qualifies, as long as it meets three requirements:
 
 ## Option A — minima-llm's built-in cache
 
-Judges using minima-llm (the starter-kit default) get caching for free once `cache_dir` is set: an SQLite database at `{cache_dir}/minima_llm.db` (WAL mode, safe for concurrent processes), keyed by a SHA-256 hash over model, messages, temperature, max_tokens, and extras.
+Judges that use minima-llm get caching for free once `cache_dir` is set: an SQLite database at `{cache_dir}/minima_llm.db` (WAL mode, safe for concurrent processes), keyed by a SHA-256 hash over model, messages, temperature, max_tokens, and extras.
 
 Two knobs come with it:
 
