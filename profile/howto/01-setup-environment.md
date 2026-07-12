@@ -36,7 +36,7 @@ The `.[all]` extra installs everything needed to develop, test, evaluate, and su
 
 ## Step 3 — Make the repository yours (mandatory)
 
-The starter kit is a bare-bones template, and building on it **requires** making it your own — a submission that still introduces itself as `auto-judge-starterkit` counts as unconfigured. Edit `pyproject.toml`:
+The starter kit is a bare-bones template, and building on it **requires** making it your own — a submission that still introduces itself as `auto-judge-starterkit` counts as unconfigured. The test suite enforces this: once your own `origin` remote is set, `pytest` fails until the project is renamed and the README replaced (inside the unmodified template these checks stay skipped). Edit `pyproject.toml`:
 
 | Field | Change to |
 |-------|-----------|
