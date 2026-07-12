@@ -78,7 +78,7 @@ tira-cli code-submission \
 Three details that trip people up:
 
 - **Everything your judge needs goes inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
-- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains what they do. Judges without an LLM can omit them.
+- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains what they do. Judges without an LLM can omit them. Dry-run tip: mounting your *populated* cache instead (`--mount-cache '$CACHE_DIR=cache'`, same model forwarded) replays cached responses and cuts the local test from LLM-minutes to seconds; the variable name must match what your judge reads (`CACHE_DIR` by convention — backends may differ).
 - **One submission covers one judge/variant.** Submit multiple variants by repeating the command with a different `--command` string.
 
 When the dry run passes, remove `--dry-run` and run the same command to upload.

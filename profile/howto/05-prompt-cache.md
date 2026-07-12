@@ -74,7 +74,11 @@ TIRA runs your judge in a sandbox and controls the cache mount through two `tira
 ```
 
 - `--cache-behaviour deterministic` declares that repeated runs with the same cache produce the same output — information TIRA uses for reproducibility.
-- `--mount-cache '$CACHE_DIR=EMPTY_DIR'` mounts a fresh, empty, writable directory as your cache, forcing all-fresh LLM calls; after the run, the output contains the populated cache for potential reuse. Mounting a pre-populated directory instead (`--mount-cache "CACHE_DIR=my-cache-dir"`) replays a bundled cache — handy for reproducing published results without an LLM endpoint.
+- `--mount-cache '$VARIABLE=DIRECTORY'` mounts a local directory into the container and exposes its location as the environment variable `$VARIABLE` (the container writes to a *copy*, so your local cache is never mutated). Two common right-hand sides:
+  - `EMPTY_DIR` — a fresh, empty, writable directory: forces all-fresh LLM calls; after the run, the output contains the populated cache for potential reuse. This is the canonical choice for real submissions (proves the judge works from a cold start).
+  - a pre-populated directory (e.g. `'$CACHE_DIR=cache'`) — replays your warm cache, turning the local dry-run test from LLM-minutes into seconds, and reproducing published results without an endpoint. Hits require the *same prompts and the same model*, so forward the same `OPENAI_MODEL` the cache was built with.
+
+  The variable name must match **what your judge actually reads** — `$CACHE_DIR` is the framework convention, but judges on other backends may use additional or different variables (e.g. a DSPy-based judge honoring `DSPY_CACHEDIR`); repeat `--mount-cache` per variable if needed. And mounts affect only the **local test** — nothing is baked into the uploaded image; on TIRA's side the organizers decide what gets mounted per run.
 
 The [submission guide](07-submit-to-tira.md) shows these flags in a complete command.
 
