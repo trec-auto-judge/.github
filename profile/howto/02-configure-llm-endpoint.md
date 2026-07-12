@@ -61,7 +61,15 @@ auto-judge run --llm-config llm-config.dev.yml --workflow ...
 
 ## On TIRA: how the endpoint reaches your judge
 
-Inside TIRA your judge runs in a sandbox without internet access, so the endpoint must be injected. Your judge **must accept the task-provided variables** — `OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY` — and route them into whichever LLM client it uses; every client has a way to set these explicitly (litellm: `api_base`/`api_key` arguments; LangChain: `base_url`/`api_key`; the openai SDK likewise). The starter kit's endpoint-contract test verifies this by running your judge against a local pretend endpoint and checking that it gets contacted with the injected model. Two injection mechanisms exist:
+Inside TIRA your judge runs in a sandbox without internet access, so the endpoint must be injected.
+
+### The endpoint contract
+
+Your judge **must use the task-provided environment variables as-is** — `OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY` — and route their values into whichever LLM client it uses. Every client has a way to set these explicitly (litellm: `api_base`/`api_key` arguments; LangChain: `base_url`/`api_key`; the openai SDK likewise). A judge with a hardcoded endpoint or model **will not run on TIRA**: the sandbox has no route to your provider, and we choose which model your judge gets — the failure only surfaces after the code is submitted, in a remote run you cannot debug.
+
+To catch this before submission, the starter kit's `tests/test_endpoint_contract.py` runs each judge against a local pretend endpoint and asserts that the judge contacts it, with the injected model. Judges that make no LLM calls at all belong in the `NON_LLM_JUDGES` set at the top of that test file, which marks their case as expected-to-fail (`xfail`) — do not delete the test.
+
+Two injection mechanisms exist:
 
 1. **Forwarded environment variables.** `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` registers the variable **names** as your judge's runtime requirements. Values are supplied per run by whoever runs it: your shell for the local test, and the organizers — with their cluster-internal endpoint and their choice of model — for runs on TIRA. Your judge cannot pin a specific external endpoint into remote runs, by design. The [submission guide](07-submit-to-tira.md) shows this in context.
 
