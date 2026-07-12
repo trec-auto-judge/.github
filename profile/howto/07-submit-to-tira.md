@@ -73,11 +73,12 @@ tira-cli code-submission \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge \
     --dataset kiddie-20260605-training \
-    --command 'auto-judge run --workflow /auto-judge/judges/myjudge/workflow.yml --variant best --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+    --command 'auto-judge run --llm-config llm-config.yml --submission --workflow /auto-judge/judges/myjudge/workflow.yml --variant best --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 ```
 
 Three details that trip people up:
 
+- **Include `--llm-config llm-config.yml --submission` in the command.** On TIRA this resolves your `model_preferences` against the organizer's model pool and hands your judge a ready endpoint ([details](02-configure-llm-endpoint.md)); without it, the judge depends on raw environment variables that the runner may name differently. Locally the same flags fall back to your `OPENAI_*` environment, so one command works in both worlds.
 - **Everything your judge needs goes inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
 - **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains what they do. Judges without an LLM can omit them. Dry-run tip: mounting your *populated* cache instead (`--mount-cache '$CACHE_DIR=cache'`, same model forwarded) replays cached responses and cuts the local test from LLM-minutes to seconds; the variable name must match what your judge reads (`CACHE_DIR` by convention — backends may differ).
 - **One submission covers one judge/variant.** Submit multiple variants by repeating the command with a different `--command` string.

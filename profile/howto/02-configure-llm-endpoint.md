@@ -74,7 +74,7 @@ Inside TIRA your judge runs in a sandbox without internet access, so the endpoin
    on_no_match: "use_default"   # or "error" to fail with the list of available models
    ```
 
-   At startup the first available preference wins, and your judge receives a ready-to-use `llm_config` with the organizer-chosen endpoint. Test the resolution locally with `auto-judge list-models --resolve llm-config.yml`.
+   At startup the first available preference wins, and your judge receives a ready-to-use `llm_config` with the organizer-chosen endpoint. This only engages when your submitted command includes `--llm-config llm-config.yml --submission` — include both flags in the `tira-cli --command` string ([submission guide](07-submit-to-tira.md)). Locally, the resolver falls back to your `OPENAI_*` environment when no organizer pool is configured, so the same command works in the dry run. Test the resolution with `auto-judge list-models --resolve llm-config.yml`.
 
 Keeping both files in your repo — `llm-config.dev.yml` for development, `llm-config.yml` with preferences for submission — covers both worlds cleanly.
 
