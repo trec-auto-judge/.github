@@ -4,7 +4,7 @@ Welcome! Participating in TREC AutoJudge means building an automatic judge for R
 
 | # | Activity | You will... |
 |---|----------|-------------|
-| 1 | [Set up your dev environment](01-setup-environment.md) | fork the starter kit, install with `uv`, verify on the kiddie dataset |
+| 1 | [Set up your dev environment](01-setup-environment.md) | clone the starter kit into your own repo, install with `uv`, verify on the kiddie dataset |
 | 2 | [Configure your LLM endpoint](02-configure-llm-endpoint.md) | pick an LLM client (any OpenAI-compatible one), configure it locally and for TIRA |
 | 3 | [Develop an AutoJudge](03-develop-an-autojudge.md) | implement the `AutoJudge` protocol and follow the conventions that keep judges reproducible |
 | 4 | [Run workflows](04-run-workflows.md) | run your judge with `auto-judge run`, use variants, dev flags, and multi-dataset runs |

@@ -6,7 +6,7 @@ A judge plugs into the framework by implementing the `AutoJudge` protocol — up
 
 ## Where your code lives
 
-Create a directory under `judges/` in your fork:
+Create a directory under `judges/` in your repository:
 
 ```
 judges/myjudge/

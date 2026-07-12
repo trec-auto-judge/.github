@@ -6,17 +6,20 @@ Building an auto-judge starts from the [AutoJudge Starter Kit](https://github.co
 
 If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit ships an interactive walkthrough of this page: type `/autojudge-setup`.
 
-## Step 1 — Fork and clone the starter kit
+## Step 1 — Clone the starter kit into your own repository
 
-Fork [auto-judge-starter-kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) on GitHub, then:
+Rather than a GitHub fork (which permanently labels your judge as "forked from the starter kit" and gets entangled in fork-based PR flows), clone the [auto-judge-starter-kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) into a fresh repository of your own and keep the original around as a `starterkit` remote:
 
 ```bash
-git clone git@github.com:YOUR-USER/YOUR-FORK.git
-cd YOUR-FORK
-git remote add upstream git@github.com:trec-auto-judge/auto-judge-starter-kit.git
+# 1. Create an empty repository for your judge on GitHub (no README), then:
+git clone git@github.com:trec-auto-judge/auto-judge-starter-kit.git YOUR-JUDGE
+cd YOUR-JUDGE
+git remote rename origin starterkit
+git remote add origin git@github.com:YOUR-USER/YOUR-JUDGE.git
+git push -u origin main
 ```
 
-The upstream remote lets you pull template improvements later (`git fetch upstream && git merge upstream/main`). Library updates (`autojudge-base`, `minima-llm`, ...) arrive separately through `pip`/`uv pip install --upgrade`, not through the template.
+Your repository is now a first-class project: `origin` is yours, and the `starterkit` remote lets you pull template improvements later (`git fetch starterkit && git merge starterkit/main` — expect a few conflicts once you have diverged; resolve keeping your versions). Library updates (`autojudge-base`, `minima-llm`, ...) arrive separately through `pip`/`uv pip install --upgrade`, not through the template.
 
 ## Step 2 — Create a virtual environment and install
 
@@ -31,7 +34,7 @@ The `.[all]` extra installs everything needed to develop, test, evaluate, and su
 - `uv venv` creates the environment but does **not** activate it. If you skip `source .venv/bin/activate`, the install may land in a different environment. Always activate first, then install.
 - If you are still sorting out heavier tooling and just want to start coding, the lightweight `uv pip install -e .` installs only the judge runtime; switch to `.[all]` once you are ready to test or submit.
 
-## Step 3 — Make the fork yours
+## Step 3 — Make the repository yours
 
 Edit `pyproject.toml`:
 
