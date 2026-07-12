@@ -24,7 +24,7 @@ The starter kit's `pytest` suite exists to check **every judge implementation in
 1. the `workflow.yml` parses as valid YAML, and
 2. every declared class reference (`judge_class`, `nugget_class`, `qrels_class` — the `module:ClassName` strings) imports and resolves,
 
-which is exactly how `auto-judge run` — locally and inside TIRA — loads your judge. A judge that fails these checks cannot run at all, so keeping `pytest` green is a [submission requirement](07-submit-to-tira.md). The moment you `git add` a new judge directory, it is covered; no test edits needed. Alongside them, a customization check fails until the template is [made your own](01-setup-environment.md) (project renamed, README replaced). These checks are the *minimum* — add judge-specific tests (parsers, scoring logic, aggregation) on top, as the example judges do.
+which is exactly how `auto-judge run` — locally and inside TIRA — loads your judge. A judge that fails these checks cannot run at all, so keeping `pytest` green is a [submission requirement](07-submit-to-tira.md). The moment you `git add` a new judge directory, it is covered; no test edits needed. Alongside them, a customization check fails until the template is [made your own](01-setup-environment.md) (project renamed, README replaced), and an endpoint-contract test runs each judge against a local pretend LLM endpoint to verify the [injected environment variables](02-configure-llm-endpoint.md) actually reach your LLM client. These checks are the *minimum* — add judge-specific tests (parsers, scoring logic, aggregation) on top, as the example judges do.
 
 ## Minimal judge: leaderboard only
 
