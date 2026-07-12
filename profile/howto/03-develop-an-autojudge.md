@@ -15,7 +15,16 @@ judges/myjudge/
   workflow.yml      # workflow configuration
 ```
 
-Remember to `git add judges/myjudge/` — new directories start untracked, and the starter kit's tests discover judges from *git-tracked* `judges/*/workflow.yml` files: once tracked, `pytest` automatically checks that your workflow parses and your declared classes import. Delete the example judges you did not write before [submitting](07-submit-to-tira.md).
+Remember to `git add judges/myjudge/` — new directories start untracked. Delete the example judges you did not write before [submitting](07-submit-to-tira.md).
+
+### Minimum-compatibility tests, for free
+
+The starter kit's `pytest` suite exists to check **every judge implementation in your repo for minimum compatibility with the framework** — and it finds your judges by itself. Discovery works off `git ls-files judges/*/workflow.yml`: every *git-tracked* workflow becomes its own test case (deliberately ignoring untracked local leftovers), and for each one the suite verifies the two things the framework will do to your judge at load time:
+
+1. the `workflow.yml` parses as valid YAML, and
+2. every declared class reference (`judge_class`, `nugget_class`, `qrels_class` — the `module:ClassName` strings) imports and resolves,
+
+which is exactly how `auto-judge run` — locally and inside TIRA — loads your judge. A judge that fails these checks cannot run at all, so keeping `pytest` green is a [submission requirement](07-submit-to-tira.md). The moment you `git add` a new judge directory, it is covered; no test edits needed. These checks are the *minimum* — add judge-specific tests (parsers, scoring logic, aggregation) on top, as the example judges do.
 
 ## Minimal judge: leaderboard only
 
