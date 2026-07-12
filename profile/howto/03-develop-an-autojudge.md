@@ -109,7 +109,7 @@ Separate classes per phase (`nugget_class`, `qrels_class`, `judge_class`) work a
 
 ### Reading responses and topics
 
-Your judge receives an iterable of `Report` objects (one system's answer to one topic) and a sequence of `Request` objects (the topics). The fields you actually reach for:
+Your judge receives an iterable of `Report` objects (one system's answer to one topic) and a sequence of `Request` objects (the topics). The tables below name the fields judges reach for most; because these models evolve, treat the pydantic definitions in auto-judge-base as the authoritative, always-current listing — [`Report`](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/report.py), [`Request`](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/request.py), and [`Document`](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/document/document.py) declare every field with its type and default.
 
 **`Request`** — the evaluation topic:
 
