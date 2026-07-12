@@ -32,11 +32,9 @@ The framework hands you endpoint coordinates, not a client, so you pick the libr
 
 Whatever you choose, never bake an endpoint or key into your code — a hardcoded value would break under TIRA, where the organizer decides which model your judge gets.
 
-## Local development: three config layers
+## Local development
 
-Configuration resolves as **env → yaml → cli**, each layer overriding the previous.
-
-**Environment variables** form the base layer:
+The endpoint is configured through **environment variables** — the only injection path:
 
 ```bash
 export OPENAI_BASE_URL="http://localhost:8000/v1"   # any OpenAI-compatible endpoint: vLLM, Ollama, hosted OpenAI, ...
@@ -45,19 +43,6 @@ export OPENAI_API_KEY="sk-..."                       # optional for unsecured lo
 export CACHE_DIR="./cache"                           # optional, enables prompt caching
 ```
 
-**A YAML file** overrides the environment when passed via `--llm-config`:
-
-```yaml
-# llm-config.dev.yml — direct endpoint for local development
-base_url: "http://localhost:11434/v1"
-model: "llama3.2"
-api_key: ""
-cache_dir: "./cache"
-```
-
-```bash
-auto-judge run --llm-config llm-config.dev.yml --workflow ...
-```
 
 ## On TIRA: how the endpoint reaches your judge
 
@@ -69,22 +54,11 @@ Your judge **must use the task-provided environment variables as-is** — `OPENA
 
 To catch this before submission, the starter kit's `tests/test_endpoint_contract.py` runs each judge against a local pretend endpoint and asserts that the judge contacts it, with the injected model. Judges that make no LLM calls at all declare `uses_llm: false` in their own `workflow.yml`, which marks their case as expected-to-fail (`xfail`) — do not delete the test.
 
-Two injection mechanisms exist:
+The injection mechanism: **forwarded environment variables.** `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` registers the variable **names** as your judge's runtime requirements. Values are supplied per run by whoever runs it: your shell for the local test, and the organizers — with their cluster-internal endpoint and their choice of model — for runs on TIRA. Your judge cannot pin a specific external endpoint into remote runs, by design. The [submission guide](07-submit-to-tira.md) shows this in context.
 
-1. **Forwarded environment variables.** `--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL` registers the variable **names** as your judge's runtime requirements. Values are supplied per run by whoever runs it: your shell for the local test, and the organizers — with their cluster-internal endpoint and their choice of model — for runs on TIRA. Your judge cannot pin a specific external endpoint into remote runs, by design. The [submission guide](07-submit-to-tira.md) shows this in context.
+Model choice on TIRA rests with the organizers through the injected `OPENAI_MODEL`. To evaluate your judge with several models locally, loop over env injections (`OPENAI_MODEL=a auto-judge run ...; OPENAI_MODEL=b auto-judge run ...`).
 
-2. **Model preferences (submission mode).** Instead of naming an endpoint, your repo ships an `llm-config.yml` declaring an ordered wish list that the organizers resolve against their model pool:
-
-   ```yaml
-   model_preferences:
-     - "llama-3.3-70b-instruct"
-     - "gpt-4o"
-   on_no_match: "use_default"   # or "error" to fail with the list of available models
-   ```
-
-   At startup the first available preference wins, and your judge receives a ready-to-use `llm_config` with the organizer-chosen endpoint. This only engages when your submitted command includes `--llm-config llm-config.yml --submission` — include both flags in the `tira-cli --command` string ([submission guide](07-submit-to-tira.md)). Locally, the resolver falls back to your `OPENAI_*` environment when no organizer pool is configured, so the same command works in the dry run. Test the resolution with `auto-judge list-models --resolve llm-config.yml`.
-
-Keeping both files in your repo — `llm-config.dev.yml` for development, `llm-config.yml` with preferences for submission — covers both worlds cleanly.
+> **Historical note:** earlier versions supported an `llm-config.yml` (`--llm-config`, `--submission`, `model_preferences`). This mechanism has been removed — if your repo still carries such a file or commands, delete the file and rely on the environment variables.
 
 ## Troubleshooting
 
@@ -92,11 +66,10 @@ Keeping both files in your repo — `llm-config.dev.yml` for development, `llm-c
   ```bash
   curl -s "$OPENAI_BASE_URL/models" -H "Authorization: Bearer $OPENAI_API_KEY" | head
   ```
-- **Overriding a shared environment script.** Because configuration layers as env → yaml → cli, a later `export OPENAI_MODEL=...` (or a `--llm-config` file) overrides whatever a sourced team script set — no need to edit the shared script.
+- **Overriding a shared environment script.** A later `export OPENAI_MODEL=...` overrides whatever a sourced team script set — no need to edit the shared script.
 - **Silent empty results.** When every LLM call fails (bad key, dead endpoint, stale model), judges tend to produce empty output, which the framework's verification then rejects (e.g. `Empty nugget banks for N topic(s)`). Treat that error as "check the endpoint first", not as a bug in your judge logic.
 
 ## References
 
-- [LLM model configuration (llm_resolver)](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/llm_resolver/README.md) — the two config formats, resolution rules, troubleshooting
 - [minima-llm — Configuration](https://github.com/trec-auto-judge/minima-llm#configuration) — full environment-variable table and YAML schema
 - [minima-llm — Proxy Mode](https://github.com/trec-auto-judge/minima-llm#proxy-mode) — caching/rate-limiting for any OpenAI-compatible client

@@ -30,7 +30,6 @@ auto-judge run --help    # all options
 | `--sweep NAME` | run a parameter sweep |
 | `-S KEY=VALUE` | override a shared setting |
 | `-N KEY=VALUE` / `-J KEY=VALUE` | override a nugget / judge setting |
-| `--llm-config FILE` | point at an LLM config ([details](02-configure-llm-endpoint.md)) |
 
 Variants and sweeps let one `workflow.yml` express a whole family of configurations. A variant names a block of setting overrides — with `filebase: "{_name}"`, each variant's output files carry its name automatically:
 
@@ -90,5 +89,5 @@ Useful switches: `--dataset NAME` restricts to named datasets, `--runs prio1` / 
 ## References
 
 - [Workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) — canonical `workflow.yml` schema: execution phases, settings, variants, sweeps, lifecycle flags, CLI reference
-- [auto-judge-base — CLI](https://github.com/trec-auto-judge/auto-judge-base#cli) — `run`, `export-corpus`, `list-models`
+- [auto-judge-base — CLI](https://github.com/trec-auto-judge/auto-judge-base#cli) — `run`, `export-corpus`
 - [auto-judge-evaluate](https://github.com/trec-auto-judge/auto-judge-evaluate) — `leaderboard` (summary statistics) and `eval-result` (format conversion) for post-processing run outputs

@@ -6,14 +6,10 @@ LLM judges re-run constantly during development, and without a cache every re-ru
 
 ## The contract: one directory, any client
 
-The framework hands your judge a cache location — the `CACHE_DIR` environment variable, arriving as `llm_config.cache_dir` — and expects cached responses to persist under that directory. Setting it enables caching; leaving it unset disables it:
+The framework hands your judge a cache location — the `CACHE_DIR` environment variable, arriving as `llm_config.cache_dir` — and expects cached responses to persist under that directory. Setting the environment variable enables caching; leaving it unset disables it:
 
 ```bash
-export CACHE_DIR="./cache"          # env var, or
-```
-
-```yaml
-cache_dir: "./cache"                # in your llm-config yaml
+export CACHE_DIR="./cache"
 ```
 
 Any caching mechanism qualifies, as long as it meets three requirements:
