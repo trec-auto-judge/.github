@@ -15,7 +15,7 @@ judges/myjudge/
   workflow.yml      # workflow configuration
 ```
 
-Remember to `git add judges/myjudge/` — new directories start untracked. Delete the example judges you did not write before [submitting](07-submit-to-tira.md).
+Remember to `git add judges/myjudge/` — new directories start untracked, and the starter kit's tests discover judges from *git-tracked* `judges/*/workflow.yml` files: once tracked, `pytest` automatically checks that your workflow parses and your declared classes import. Delete the example judges you did not write before [submitting](07-submit-to-tira.md).
 
 ## Minimal judge: leaderboard only
 
@@ -162,6 +162,7 @@ Anything you might want to vary — prompt style, number of nuggets, grading sca
 - **Sort before you compare.** Order responses by `run_id` before building comparison pairs, so prompts — and therefore [prompt-cache](05-prompt-cache.md) keys — stay identical across runs.
 - **Accept the injected output parameters.** All judge methods receive auto-filled `filebase: str = "default"` and `outdir: Path = Path(".")` for constructing output paths; declare them explicitly. Setting `filebase: "{_name}"` in `workflow.yml` names output files after the variant or sweep being run.
 - **Verify before returning.** The `build(expected_topic_ids=...)`, `leaderboard.verify(...)`, and `qrels.verify(...)` checks exist to fail fast — silent topic drop-out is the classic way a judge produces a wrong-but-plausible leaderboard.
+- **Preflight the endpoint.** Make one probe LLM call at the start of each phase and raise on failure — a stale model id or bad key then surfaces as one clear provider error instead of hundreds of failed batch calls (see [endpoint troubleshooting](02-configure-llm-endpoint.md#troubleshooting)).
 
 ## References
 

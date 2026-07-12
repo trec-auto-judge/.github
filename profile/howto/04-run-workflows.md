@@ -61,6 +61,8 @@ Given `filebase: "myjudge"` and `--out-dir ./output/`:
 | `myjudge.qrels` | `create_qrels: true` | relevance judgments |
 | `myjudge.config.yml` | always | full config snapshot for reproducibility |
 
+When inspecting `*.nuggets.jsonl` by hand, expect one `NuggetBank` JSON object per line, with the questions stored under `nugget_bank` as a **mapping keyed by nugget id** (not a list) — iterate its `.values()`.
+
 ## Running against multiple datasets
 
 `run_all_datasets.py` drives one `auto-judge run` per dataset listed in a `datasets.yml`:
