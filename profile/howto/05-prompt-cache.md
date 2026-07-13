@@ -32,19 +32,7 @@ Any caching mechanism qualifies, as long as it meets four requirements:
 
 ## Option A — minima-llm's built-in cache
 
-Judges that use minima-llm get caching for free once `cache_dir` is set: an SQLite database at `{cache_dir}/minima_llm.db` (WAL mode, safe for concurrent processes), keyed by a SHA-256 hash over model, messages, temperature, max_tokens, and extras.
-
-Two knobs come with it:
-
-- **Force refresh** — re-ask the LLM while still recording the new answers:
-  ```bash
-  export CACHE_FORCE_REFRESH=1      # or force_refresh: true in yaml
-  ```
-- **Miss debugging** — when runs miss unexpectedly, trace the key computation:
-  ```bash
-  export MINIMA_TRACE_FILE=trace.jsonl
-  ```
-  Every lookup logs one JSONL line with the key and the canonical request JSON; diff the canonical strings between two runs to see exactly which field changed.
+Judges that use minima-llm get caching for free: it reads the cache location from the environment — the `CACHE_DIR` variable the framework populates (and hands you as `llm_config.cache_dir`) — and stores responses in an SQLite database at `{CACHE_DIR}/minima_llm.db` (WAL mode, safe for concurrent processes), keyed by a SHA-256 hash over model, messages, temperature, max_tokens, and extras. Export `CACHE_DIR` and caching is on; leave it unset and minima-llm runs without a cache. Force-refresh and cache-key tracing are additional environment switches documented in [minima-llm](https://github.com/trec-auto-judge/minima-llm#prompt-caching).
 
 ## Option B — any OpenAI-compatible client through the caching proxy
 
@@ -71,7 +59,7 @@ from langchain_core.globals import set_llm_cache
 set_llm_cache(SQLiteCache(database_path=f"{os.environ['CACHE_DIR']}/langchain_cache.db"))
 ```
 
-DSPy's built-in cache follows the same pattern — configure its disk location under `$CACHE_DIR`. Whatever the library, resist its Redis/S3/semantic backends for submissions (requirement 2 above), and debug misses with that library's own tooling; the *method* from Option A — trace what goes into the key, diff two runs — carries over even where `MINIMA_TRACE_FILE` does not.
+DSPy's built-in cache follows the same pattern — configure its disk location under `$CACHE_DIR`. Whatever the library, resist its Redis/S3/semantic backends for submissions (requirement 2 above), and debug misses with that library's own tooling — the general tactic is to trace what goes into the cache key and diff two runs to find the field that changed.
 
 ## Caching on TIRA
 
