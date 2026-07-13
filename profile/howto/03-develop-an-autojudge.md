@@ -164,7 +164,7 @@ Declare the schema once in a `LeaderboardSpec` — each `MeasureSpec` carries a 
 Nuggets capture what a good answer should contain — as questions (`NuggetQuestion` with gold `Answer`s, optionally sub-nuggets and document `Reference`s) or as fact-like claims (`NuggetClaim`). Collect them per topic in a `NuggetBank` (`bank.add_nuggets([...])`, plus a `Creator` record documenting whether a human or an LLM produced them), and return all banks keyed by topic as `NuggetBanks`. Two strategies to learn from:
 
 - **Query-only generation** — ask the LLM for nugget questions from the topic alone (prefnugget's `queryonly` judge): simple, cheap, and independent of the responses being judged.
-- **Response-grounded / contrastive extraction** — mine nuggets from the responses themselves; prefnugget's main judges first rank responses by pairwise LLM preference, then iteratively extract *differentiating* questions from winner/loser pairs, deduplicating each round and capping the bank (e.g. at 20 questions).
+- **Response-grounded / contrastive extraction** — mine nuggets from the responses themselves; prefnugget's main judges first rank responses by pairwise LLM preference, then iteratively extract *differentiating* questions from winner/loser pairs, deduplicating each round and capping the nugget bank (e.g. at 20 questions).
 
 The judging phase then typically grades every (response, nugget) pair and aggregates — coverage, average grade, max grade — into the leaderboard measures.
 
