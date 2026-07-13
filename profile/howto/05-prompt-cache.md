@@ -2,7 +2,18 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Run workflows](04-run-workflows.md) · Next: [Meta-evaluation](06-meta-evaluation.md).*
 
-LLM judges re-run constantly during development, and without a cache every re-run repeats every LLM call — slow, expensive, and noisy. A prompt cache stores each response keyed by the exact request, making repeated runs instant and deterministic. Caching works with **any LLM client**: the framework only defines where the cache lives, and this page covers that contract, three ways to satisfy it (minima-llm, the caching proxy, or your client's own disk cache), and how caching interacts with TIRA.
+LLM judges re-run constantly during development, and without a cache every re-run repeats every LLM call — slow, expensive, and noisy. A prompt cache stores each response keyed by the exact request, so repeated runs are instant. That same cache then does a second, larger job at submission time: you ship it with your judge, TIRA reproduces your results from it without spending a single LLM call, and — because a judge that reproduces from its cache alone has *proven* it is reproducible — the cache doubles as your proof of correctness, which TIRA validates automatically. This page walks that lifecycle, the one contract your cache must meet, three ways to meet it (minima-llm, the caching proxy, or your client's own disk cache), and the TIRA flags that drive it.
+
+## The lifecycle: seed locally, ship the cache, prove reproducibility
+
+Before the mechanics, the whole idea in four steps — the cache travels with your judge from your laptop into TIRA:
+
+1. **Seed it locally.** As you develop and run your judge against a real LLM endpoint, every call is written under `$CACHE_DIR`. Once you have run over the evaluation topics, that directory holds an answer for every prompt your judge sends.
+2. **Ship it with your submission.** `tira-cli` uploads your cache directory alongside your code (through `--mount-cache`, [below](#caching-on-tira)), so the warm cache becomes part of the submission — not merely a local convenience.
+3. **TIRA reproduces your results for free.** With the cache warm, TIRA re-runs your judge with the LLM endpoint switched off and serves every call from your cache. Reproducing your run costs the organizers no API calls — which is what makes evaluating many judges across many systems affordable.
+4. **The cache is your proof of correctness.** `--cache-behaviour deterministic` makes TIRA re-execute your judge from the cache with the endpoint disabled and check that it reproduces the same output. Passing means your judge is *provably* reproducible from its cache alone — the cache is the evidence, and TIRA checks it for you.
+
+All of this rests on one assumption: **your judge sends byte-identical prompts on every run.** If a prompt changes between runs — reordered inputs, an embedded timestamp, a different model — the replay misses, and with the endpoint disabled the judge has nowhere to turn and fails. Determinism is what turns a caching speed-up into a reproducibility guarantee; the contract below is how you preserve it.
 
 ## The contract: one directory, any client
 
@@ -12,7 +23,7 @@ The framework hands your judge a cache location — the `CACHE_DIR` environment 
 export CACHE_DIR="./cache"
 ```
 
-Any caching mechanism qualifies, as long as it meets three requirements:
+Any caching mechanism qualifies, as long as it meets four requirements:
 
 1. **The store lives under `$CACHE_DIR`** — that is the directory TIRA mounts and the only path that survives into a submission run.
 2. **The backend is disk-based.** Inside TIRA's no-internet sandbox, a Redis, S3, or other hosted cache backend cannot connect — a common trap for litellm configurations that work fine locally.
@@ -71,11 +82,11 @@ TIRA runs your judge in a sandbox and controls the cache mount through two `tira
 ```
 
 - `--cache-behaviour deterministic` declares that repeated runs with the same cache produce the same output — and tira-cli *verifies* it: after the first local run, your judge is **re-executed with the LLM endpoint disabled** (`OPENAI_BASE_URL=EMPTY`) and the first run's cache, and must reproduce valid output from cache alone. Judges that phone home unconditionally, or whose cache keys include the endpoint URL (requirement 3), fail this second run.
-- `--mount-cache '$VARIABLE=DIRECTORY'` mounts a local directory into the container and exposes its location as the environment variable `$VARIABLE` (the container writes to a *copy*, so your local cache is never mutated). Two common right-hand sides:
-  - `EMPTY_DIR` — a fresh, empty, writable directory: forces all-fresh LLM calls; after the run, the output contains the populated cache for potential reuse. This is the canonical choice for real submissions (proves the judge works from a cold start).
-  - a pre-populated directory (e.g. `'$CACHE_DIR=cache'`) — replays your warm cache, turning the local dry-run test from LLM-minutes into seconds, and reproducing published results without an endpoint. Hits require the *same prompts and the same model*, so forward the same `OPENAI_MODEL` the cache was built with.
+- `--mount-cache '$VARIABLE=DIRECTORY'` mounts a local directory as the environment variable `$VARIABLE` (the container writes to a *copy*, so your local cache is never mutated) — and, crucially for submissions, `tira-cli` **uploads that directory with your code**, so the cache you mount here is what TIRA has on hand when your judge runs. Two right-hand sides:
+  - a pre-populated directory (your seeded cache, e.g. `'$CACHE_DIR=cache'`) — **the recommended path for a real submission**: your warm cache ships with the code, and TIRA reproduces your results from it with no LLM calls. Hits require the *same prompts and the same model* the cache was built with, so run and submit with the same `OPENAI_MODEL`.
+  - `EMPTY_DIR` — a fresh, empty, writable directory that forces all-fresh LLM calls (a cold start), leaving the populated cache in the run output. Reach for it to prove your judge works from scratch or to regenerate a cache; the first run then spends real LLM calls rather than replaying.
 
-  The variable name must match **what your judge actually reads** — `$CACHE_DIR` is the framework convention, but judges on other backends may use additional or different variables (e.g. a DSPy-based judge honoring `DSPY_CACHEDIR`); repeat `--mount-cache` per variable if needed. And mounts affect only the **local test** — nothing is baked into the uploaded image; on TIRA's side the organizers decide what gets mounted per run.
+  The variable name must match **what your judge actually reads** — `$CACHE_DIR` is the framework convention, but judges on other backends may use additional or different variables (e.g. a DSPy-based judge honoring `DSPY_CACHEDIR`); repeat `--mount-cache` per variable if needed.
 
 The [submission guide](07-submit-to-tira.md) shows these flags in a complete command.
 
