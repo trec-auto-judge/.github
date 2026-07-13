@@ -94,7 +94,19 @@ When inspecting `*.nuggets.jsonl` by hand, expect one `NuggetBank` JSON object p
 
 ## Running against multiple datasets
 
-`run_all_datasets.py` drives one `auto-judge run` per dataset listed in a `datasets.yml`:
+Each dataset is one `auto-judge run` — the same command as [the basic run](#the-basic-run) above, pointed at that dataset's responses and topics, plus `--corpus` when your judge reads documents:
+
+```bash
+auto-judge run \
+    --workflow judges/myjudge/workflow.yml \
+    --rag-responses data/dragun/runs/ \
+    --rag-topics data/dragun/topics.jsonl \
+    --corpus data/dragun/corpus.jsonl \
+    --variant best \
+    --out-dir ./output/dragun/
+```
+
+Run that directly for a single dataset. For several datasets, `run_all_datasets.py` automates exactly this — one `auto-judge run` per dataset listed in a `datasets.yml`, appending `--corpus` for datasets that declare one:
 
 ```bash
 python run_all_datasets.py --workflow judges/myjudge/workflow.yml
@@ -114,7 +126,7 @@ datasets:
     assessed_topics: [...]   # subset selected by --topics assessed
 ```
 
-Useful switches: `--dataset NAME` restricts to named datasets, `--runs prio1` / `--topics assessed` use the declared subsets, `--dry-run` prints the commands, and `--keep-going` continues past failures.
+`--dry-run` prints the exact `auto-judge run` command it would issue for each dataset — copy one to run a single dataset by hand. Other switches: `--dataset NAME` restricts to named datasets, `--runs prio1` / `--topics assessed` use the declared subsets, and `--keep-going` continues past failures.
 
 ## References
 
