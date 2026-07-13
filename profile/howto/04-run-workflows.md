@@ -20,6 +20,34 @@ auto-judge run --help    # all options
 
 `bash run_kiddie.sh` wraps the same run plus a local meta-evaluation into one smoke test.
 
+## What goes in a `workflow.yml`
+
+Your judge's configuration belongs in its `workflow.yml`, not in your Python. Keep every tunable value — prompt style, number of nuggets, grading scale, thresholds — here as a *setting* rather than a hardcoded constant, so you can change behavior, run ablations, and submit variations without editing (and re-caching) a line of code. The essential entries:
+
+```yaml
+judge_class:  "judges.myjudge.my_judge:MyJudge"    # module:Class of your implementation
+nugget_class: "judges.myjudge.my_judge:MyNuggets"  # only if you create nuggets
+qrels_class:  "judges.myjudge.my_judge:MyQrels"    # only if you create qrels
+
+create_nuggets: false        # which lifecycle phases run
+create_qrels:   false
+judge:          true
+judge_uses_nuggets: false    # wiring: pass nuggets into judge(), etc.
+
+settings:                    # kwargs delivered to every method
+  filebase: "myjudge"        # names the output files
+nugget_settings:             # kwargs for create_nuggets() only
+  questions_per_topic: 20
+judge_settings:              # kwargs for judge() only
+  grading: "response"
+
+uses_llm: true               # set false if the judge makes no LLM calls
+```
+
+Everything under `settings` / `nugget_settings` / `qrels_settings` / `judge_settings` arrives in the matching method as `**kwargs` — that contract is what lets you treat the workflow file as your judge's control panel instead of hunting through code. The [workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) documents every key.
+
+Two ways to change a setting without forking your code: a **variant** names a reusable block of overrides (below), selected with `--variant NAME`; a **CLI override** patches one value for one run — `-S key=value` (shared), `-N key=value` (nugget), `-J key=value` (judge) — handy for a quick experiment before you commit it as a variant.
+
 ## Development flags worth knowing
 
 | Flag | Purpose |
@@ -47,6 +75,8 @@ variants:
 ```
 
 `auto-judge run --variant best-docs ...` then produces `best-docs.eval.txt` and friends. Sweeps generalize this to a grid over setting values — the workflow guide's [variants](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md#variants) and [parameter sweeps](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md#parameter-sweeps) sections give the full semantics.
+
+**Prefer variants for your submission's ablations.** When you want to compare method choices on TIRA — grade on responses vs. documents, 10 nuggets vs. 20 — express each as a variant and submit it with `--variant NAME` rather than editing code between runs. Every variant runs the same code under identical conditions, so the comparison is clean, and each `--variant` is its own [TIRA submission](07-submit-to-tira.md) (one variant per run).
 
 ## What lands in the output directory
 
