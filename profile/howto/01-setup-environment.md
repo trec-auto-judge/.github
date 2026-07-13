@@ -61,7 +61,7 @@ bash run_kiddie.sh
 pytest
 ```
 
-Any failure at this point signals an environment problem — fix it now, before writing judge code. Once both pass, continue with [configuring your LLM endpoint](02-configure-llm-endpoint.md) and [developing practices](03-develop-an-autojudge.md).
+Any failure at this point signals an environment problem — fix it now, before writing judge code. A `No module named 'judges…'` or `Failed to load judge classes` error almost always means the virtual environment isn't active: run `source .venv/bin/activate` and retry. Once both pass, continue with [configuring your LLM endpoint](02-configure-llm-endpoint.md) and [developing practices](03-develop-an-autojudge.md).
 
 ## Step 5 — Fetch the evaluation datasets
 
