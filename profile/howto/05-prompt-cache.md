@@ -78,7 +78,7 @@ DSPy's built-in cache follows the same pattern — configure its disk location u
 TIRA runs your judge in a sandbox and controls the cache mount through two `tira-cli code-submission` flags — client-agnostic, since they operate on the `$CACHE_DIR` directory itself:
 
 ```bash
---cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR'
+--cache-behaviour deterministic --mount-cache '$CACHE_DIR=cache'
 ```
 
 - `--cache-behaviour deterministic` declares that repeated runs with the same cache produce the same output — and tira-cli *verifies* it: after the first local run, your judge is **re-executed with the LLM endpoint disabled** (`OPENAI_BASE_URL=EMPTY`) and the first run's cache, and must reproduce valid output from cache alone. Judges that phone home unconditionally, or whose cache keys include the endpoint URL (requirement 3), fail this second run.

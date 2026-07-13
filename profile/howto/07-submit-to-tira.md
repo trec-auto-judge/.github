@@ -63,13 +63,19 @@ Scoping the verification to your task and team confirms not just the installatio
 The dry run builds the image and tests it locally on kiddie without uploading anything:
 
 ```bash
-export OPENAI_API_KEY=...  OPENAI_BASE_URL=...  OPENAI_MODEL=...
+export OPENAI_API_KEY=...  OPENAI_BASE_URL=...  OPENAI_MODEL=...  CACHE_DIR=./cache
+
+# Seed ./cache by running the SAME workflow/variant/model you submit below,
+# so the mounted cache replays instead of calling the LLM (see Prompt cache):
+auto-judge run --workflow judges/myjudge/workflow.yml --variant best \
+    --rag-responses data/kiddie/runs/repgen/ --rag-topics data/kiddie/topics/kiddie-topics.jsonl \
+    --out-dir ./output-kiddie/
 
 tira-cli code-submission \
     --dry-run \
     --path . \
     --cache-behaviour deterministic \
-    --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --mount-cache '$CACHE_DIR=cache' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge \
     --dataset kiddie-20260605-training \
@@ -79,7 +85,7 @@ tira-cli code-submission \
 Three details that trip people up:
 
 - **Everything your judge needs goes inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
-- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains what they do. Judges without an LLM can omit them. Dry-run tip: mounting your *populated* cache instead (`--mount-cache '$CACHE_DIR=cache'`, same model forwarded) replays cached responses and cuts the local test from LLM-minutes to seconds; the variable name must match what your judge reads (`CACHE_DIR` by convention — backends may differ).
+- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=cache'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. Mount your *seeded* cache (`'$CACHE_DIR=cache'`): `tira-cli` uploads it with your code, so TIRA reproduces your results from cache with no LLM calls, and the local dry run replays in seconds instead of LLM-minutes. Seed it first by running the same workflow, variant, and `OPENAI_MODEL` you submit — mismatched prompts miss. (`EMPTY_DIR` instead of `cache` forces a cold start with fresh LLM calls; use it only to regenerate a cache. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.)
 - **One submission covers one judge/variant.** Submit multiple variants by repeating the command with a different `--command` string.
 
 When the dry run passes, remove `--dry-run` and run the same command to upload.
@@ -94,7 +100,7 @@ If anything fails — or you cannot run Docker locally at all — reach out in t
 
 ## A complete session
 
-Condensed from a real, successful submission (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit), `queryonly` judge):
+Condensed from a real, successful submission (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit), `queryonly` judge), with the cache mount shown as the recommended warm-cache flow from [Prompt cache](05-prompt-cache.md):
 
 ```bash
 git clone git@github.com:YOUR-USER/YOUR-JUDGE.git && cd YOUR-JUDGE
@@ -102,7 +108,8 @@ uv venv && source .venv/bin/activate
 uv pip install -e '.[all]'
 
 export OPENAI_API_KEY=... OPENAI_BASE_URL=... OPENAI_MODEL=... CACHE_DIR=./cache
-bash run_kiddie.sh                    # local end-to-end test
+bash run_kiddie.sh                    # local end-to-end test — also seeds ./cache for the judge it runs
+                                      # (seed with the SAME judge/variant/model you submit, or the mount misses)
 
 git status --porcelain                # must be empty: gitignore build artifacts, commit the rest
 git branch --show-current             # recommended: main
@@ -112,14 +119,14 @@ tira-cli login --token XXXXX
 tira-cli verify-installation --task trec-auto-judge --team YOUR-TEAM
 
 tira-cli code-submission --dry-run --path . \
-    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=cache' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge --dataset kiddie-20260605-training \
     --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 
 # dry run green? same command without --dry-run:
 tira-cli code-submission --path . \
-    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=cache' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge --dataset kiddie-20260605-training \
     --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
