@@ -122,9 +122,13 @@ datasets:
     topics: data/kiddie/topics/kiddie-topics.jsonl
     truth: data/kiddie/eval/kiddie_fake.eval.ir_measures.txt   # optional, enables --meta-evaluate
     corpus: ...                                                # optional (recommended for doc-consulting judges)
+    tira_id: ...             # optional, target for --upload-tira (tira-cli upload)
+    bucket: ...              # optional, meta-evaluation service track for --upload-metaeval
     prio1_runs: [...]        # subset selected by --runs prio1
     assessed_topics: [...]   # subset selected by --topics assessed
 ```
+
+Real datasets are fetched into `./local-data/` by `./fetch_pilot_dataset.sh` (the synthetic `kiddie` ships committed). Once a run produces its leaderboards, `--upload-tira` and `--upload-metaeval` push them to TIRA and the meta-evaluation service — see [Uploading run outputs](07-submit-to-tira.md#uploading-run-outputs).
 
 `--dry-run` prints the exact `auto-judge run` command it would issue for each dataset — copy one to run a single dataset by hand. Other switches: `--dataset NAME` restricts to named datasets, `--runs prio1` / `--topics assessed` use the declared subsets, and `--keep-going` continues past failures.
 

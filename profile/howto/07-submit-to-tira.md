@@ -6,6 +6,14 @@ Submitting your auto-judge means making a **code submission**: `tira-cli` builds
 
 If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit ships an interactive walkthrough of this page: type `/autojudge-submit`.
 
+## Three ways to submit
+
+There are three submission paths with different mechanics — most participants use the first:
+
+1. **Code submission** (Steps 1–4 below) — `tira-cli code-submission` ships your judge's Docker image and the organizers run it on all datasets. The reproducible, preferred path.
+2. **Data submission** — you run your judge locally and upload the *outputs* (leaderboards) with `tira-cli upload`. Useful when you cannot ship runnable code, or to lodge results quickly. See [Uploading run outputs](#uploading-run-outputs).
+3. **Meta-evaluation service** — deposit your `*.eval.txt` into a meta-evaluation service (rsync, per track), which correlates it against held truth. Some host institutions run their own; TIRA data submission is usually preferred.
+
 ## Step 1 — Meet the submission requirements
 
 - **Your judge runs locally, end to end.** With your LLM environment loaded (`OPENAI_BASE_URL`/`OPENAI_MODEL`/`OPENAI_API_KEY`, plus `CACHE_DIR` for caching judges), `bash run_kiddie.sh` completes without errors — fixing problems locally beats debugging them through a Docker build.
@@ -131,6 +139,33 @@ tira-cli code-submission --path . \
     --task trec-auto-judge --dataset kiddie-20260605-training \
     --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 ```
+
+## Uploading run outputs
+
+Instead of (or alongside) a code submission, you can run your judge locally and upload the
+`.eval.txt` leaderboards it produces. Both destinations consume the same `ir_measures` leaderboard.
+
+**Get the data.** Real datasets are fetched into `./local-data/` (gitignored); only the synthetic `kiddie` ships committed:
+
+```bash
+export TREC_AUTOJUDGE_PASSWORD=...             # basic-auth password from the organizers
+./fetch_pilot_dataset.sh --dataset dragun-repgen
+```
+
+`datasets.yml` records each dataset's `tira_id` (the TIRA data-upload target) and `bucket` (the meta-evaluation service track).
+
+**Run and upload in one step.** `run_all_datasets.py` writes the leaderboards and can push them (add `--dry-run` to print the exact commands first):
+
+```bash
+# Data submission → TIRA (path 2):
+python run_all_datasets.py --workflow judges/myjudge/workflow.yml --dataset dragun-repgen --upload-tira
+
+# Deposit → meta-evaluation service (path 3):
+python run_all_datasets.py --workflow judges/myjudge/workflow.yml --dataset dragun-repgen \
+    --upload-metaeval --metaeval-dest c02:/autojudge-eval/in
+```
+
+**Or upload by hand.** `tira-cli upload --dataset <tira_id> --directory <out-dir>` zips the output directory and validates the leaderboard against the dataset's format (`trec-eval-leaderboard`); add `--dry-run` to validate without uploading, and `--system NAME` to label the run. For the meta-evaluation service, `rsync -Laur <out-dir>/*.eval.txt <dest>/<bucket>/` — the operator's watcher correlates each `*.eval.txt` against held truth.
 
 ## References
 
