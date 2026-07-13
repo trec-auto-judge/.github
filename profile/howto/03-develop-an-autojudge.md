@@ -109,7 +109,7 @@ Separate classes per phase (`nugget_class`, `qrels_class`, `judge_class`) work a
 
 ### Reading responses and topics
 
-Your judge receives an iterable of `Report` objects (one system's answer to one topic) and a sequence of `Request` objects (the topics). The tables below name the fields judges reach for most; because these models evolve, treat the pydantic definitions in auto-judge-base as the authoritative, always-current listing — [`Report`](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/report.py), [`Request`](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/request.py), and [`Document`](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/document/document.py) declare every field with its type and default.
+Your judge receives an iterable of `Report` objects (one system's answer to one topic) and a sequence of `Request` objects (the topics). The tables below name the fields judges reach for most; because these models evolve, treat the generated [API reference](https://trec-auto-judge.github.io/auto-judge-base/) as the authoritative, always-current listing — [`Report`](https://trec-auto-judge.github.io/auto-judge-base/api/data-models/#autojudge_base.report.Report), [`Request`](https://trec-auto-judge.github.io/auto-judge-base/api/data-models/#autojudge_base.request.Request), and [`Document`](https://trec-auto-judge.github.io/auto-judge-base/api/data-models/#autojudge_base.document.document.Document) list every field with its type and default, straight from the pydantic sources.
 
 **`Request`** — the evaluation topic:
 
@@ -157,7 +157,7 @@ Building the judgments means many similar LLM calls — one per response, per pa
 
 Declare the schema once in a `LeaderboardSpec` — each `MeasureSpec` carries a name, an optional `cast` (normalize incoming values), an `aggregate` (how per-topic values combine into the per-run `all` row), and a `description` — then let `LeaderboardBuilder` assemble the rows. The builder fails fast on typo'd or missing measure keys, computes the `all` rows automatically, and `build(expected_topic_ids=..., on_missing=...)` checks that every expected topic actually got scored, so a partially-failed run cannot silently produce a plausible-looking leaderboard. If your scores already sit in a list of records, `builder.add_records(records, run_id=..., topic_id=..., get_values=...)` saves the loop.
 
-→ API: [Leaderboard guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/leaderboard/README.md) — specs, builder, output formats (`tot`, `ir_measures`), fluent verification
+→ API: [Leaderboard guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/leaderboard/README.md) — specs, builder, output formats (`tot`, `ir_measures`), fluent verification · reference: [Leaderboard](https://trec-auto-judge.github.io/auto-judge-base/api/leaderboard/)
 
 ### Creating nuggets
 
@@ -170,13 +170,13 @@ The judging phase then typically grades every (response, nugget) pair and aggreg
 
 Note that the workflow runner verifies nugget banks before judging: a topic with an *empty* bank fails the run (`NuggetBanksVerificationError`). An empty bank usually means the LLM calls failed silently — check the [endpoint configuration](02-configure-llm-endpoint.md#troubleshooting) before suspecting your extraction logic.
 
-→ API: [NuggetBank format](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/nugget_data/README.md) — the v3 data model with verification
+→ API: [NuggetBank format](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/nugget_data/README.md) — the v3 data model with verification · reference: [Nuggets](https://trec-auto-judge.github.io/auto-judge-base/api/nuggets/)
 
 ### Creating qrels
 
 Qrels record fine-grained relevance judgments as `(topic_id, doc_id, grade)` rows. Define a `QrelsSpec` with three extractor functions (`topic_id`, `doc_id`, `grade`, plus an `on_duplicate` policy), build with `build_qrels(records, spec)`, verify coverage with `qrels.verify(expected_topic_ids=...)`, and serialize with `write_qrel_file(...)` into standard TREC format, deterministically sorted for reproducibility. When judging generated text that has no corpus ID, derive stable ids with the `doc_id_md5` helper (`md5:<hash of text>`).
 
-→ API: [Qrels guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/qrels/README.md) — building, verifying, and serializing TREC-format qrels
+→ API: [Qrels guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/qrels/README.md) — building, verifying, and serializing TREC-format qrels · reference: [Qrels](https://trec-auto-judge.github.io/auto-judge-base/api/qrels/)
 
 ### Configuring hyperparameters
 
@@ -204,6 +204,7 @@ Anything you might want to vary — prompt style, number of nuggets, grading sca
 
 ## References
 
+- [auto-judge-base API](https://trec-auto-judge.github.io/auto-judge-base/) — generated reference for the data models, leaderboard, qrels, nuggets, and the `AutoJudge` protocol, rendered from the pydantic sources
 - [auto-judge-base — Quick Start & data classes](https://github.com/trec-auto-judge/auto-judge-base) — `Report`, `Request`, `Leaderboard`, `NuggetBanks`, data-loading utilities
 - [Leaderboard guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/leaderboard/README.md) · [Qrels guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/qrels/README.md) · [NuggetBank format](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/nugget_data/README.md) · [Workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md)
 - [minima-llm](https://github.com/trec-auto-judge/minima-llm) — batching, caching, DSPy adapter
