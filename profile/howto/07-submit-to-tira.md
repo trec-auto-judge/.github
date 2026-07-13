@@ -142,30 +142,19 @@ tira-cli code-submission --path . \
 
 ## Uploading run outputs
 
-Instead of (or alongside) a code submission, you can run your judge locally and upload the
-`.eval.txt` leaderboards it produces. Both destinations consume the same `ir_measures` leaderboard.
-
-**Get the data.** Real datasets are fetched into `./local-data/` (gitignored); only the synthetic `kiddie` ships committed:
+Instead of (or alongside) a code submission, run your judge locally and upload the `.eval.txt` leaderboards it produces — a quick full pass once your [environment is set up and the datasets are fetched](01-setup-environment.md#step-5--fetch-the-evaluation-datasets). Both destinations consume the same `ir_measures` leaderboard, and [`run_all_datasets.py`](04-run-workflows.md#running-against-multiple-datasets) does the run and the upload in one step (`--dry-run` prints the exact commands first):
 
 ```bash
-export TREC_AUTOJUDGE_PASSWORD=...             # basic-auth password from the organizers
-./fetch_pilot_dataset.sh --dataset dragun-repgen
-```
-
-`datasets.yml` records each dataset's `tira_id` (the TIRA data-upload target) and `bucket` (the meta-evaluation service track).
-
-**Run and upload in one step.** `run_all_datasets.py` writes the leaderboards and can push them (add `--dry-run` to print the exact commands first):
-
-```bash
-# Data submission → TIRA (path 2):
-python run_all_datasets.py --workflow judges/myjudge/workflow.yml --dataset dragun-repgen --upload-tira
-
-# Deposit → meta-evaluation service (path 3):
 python run_all_datasets.py --workflow judges/myjudge/workflow.yml --dataset dragun-repgen \
-    --upload-metaeval --metaeval-dest c02:/autojudge-eval/in
+    --upload-tira --upload-metaeval --metaeval-dest c02:/autojudge-eval/in
 ```
 
-**Or upload by hand.** `tira-cli upload --dataset <tira_id> --directory <out-dir>` zips the output directory and validates the leaderboard against the dataset's format (`trec-eval-leaderboard`); add `--dry-run` to validate without uploading, and `--system NAME` to label the run. For the meta-evaluation service, `rsync -Laur <out-dir>/*.eval.txt <dest>/<bucket>/` — the operator's watcher correlates each `*.eval.txt` against held truth.
+By hand, the two interactions are:
+
+- **TIRA data upload** — `tira-cli upload --dataset <tira_id> --directory <out-dir>` zips the output directory and validates the leaderboard against the dataset's format (`trec-eval-leaderboard`); add `--dry-run` to validate without uploading, and `--system NAME` to label the run.
+- **Meta-evaluation service** — `rsync -Laur <out-dir>/*.eval.txt <dest>/<bucket>/`; the operator's watcher correlates each `*.eval.txt` against held truth.
+
+Each dataset's `tira_id` and `bucket` are recorded in `datasets.yml`.
 
 ## References
 

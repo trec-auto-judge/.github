@@ -128,9 +128,15 @@ datasets:
     assessed_topics: [...]   # subset selected by --topics assessed
 ```
 
-Real datasets are fetched into `./local-data/` by `./fetch_pilot_dataset.sh` (the synthetic `kiddie` ships committed). Once a run produces its leaderboards, `--upload-tira` and `--upload-metaeval` push them to TIRA and the meta-evaluation service — see [Uploading run outputs](07-submit-to-tira.md#uploading-run-outputs).
+Real datasets are fetched into `./local-data/` first — see [fetch the datasets](01-setup-environment.md#step-5--fetch-the-evaluation-datasets).
 
-`--dry-run` prints the exact `auto-judge run` command it would issue for each dataset — copy one to run a single dataset by hand. Other switches: `--dataset NAME` restricts to named datasets, `--runs prio1` / `--topics assessed` use the declared subsets, and `--keep-going` continues past failures.
+Beyond running, `run_all_datasets.py` can evaluate and submit each run's leaderboards in the same pass:
+
+- `--meta-evaluate` — correlate against the dataset's `truth` (see [meta-evaluation](06-meta-evaluation.md)).
+- `--upload-tira` — upload the output to TIRA via `tira-cli upload` (the dataset's `tira_id`).
+- `--upload-metaeval --metaeval-dest DEST` — deposit `*.eval.txt` into the meta-evaluation service's per-track `bucket` under `DEST`.
+
+The submission semantics of the last two are in [Uploading run outputs](07-submit-to-tira.md#uploading-run-outputs). `--dry-run` prints the exact `auto-judge run` command (and any upload commands) for each dataset — copy one to run a single dataset by hand. Other switches: `--dataset NAME` restricts to named datasets, `--runs prio1` / `--topics assessed` use the declared subsets, and `--keep-going` continues past failures.
 
 ## References
 

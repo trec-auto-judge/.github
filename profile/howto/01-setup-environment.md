@@ -63,6 +63,20 @@ pytest
 
 Any failure at this point signals an environment problem — fix it now, before writing judge code. Once both pass, continue with [configuring your LLM endpoint](02-configure-llm-endpoint.md) and [developing practices](03-develop-an-autojudge.md).
 
+## Step 5 — Fetch the evaluation datasets
+
+The synthetic `kiddie` dataset ships with the kit (the smoke test above uses it), but the real evaluation runs come from a password-protected release. `fetch_pilot_dataset.sh` downloads them into `./local-data/` (gitignored):
+
+```bash
+export TREC_AUTOJUDGE_PASSWORD=...              # basic-auth password from the organizers
+./fetch_pilot_dataset.sh                        # all tracks, or one at a time:
+./fetch_pilot_dataset.sh --dataset dragun-repgen
+```
+
+The script reads `TREC_AUTOJUDGE_USER` (default `trec2025`) and `TREC_AUTOJUDGE_PASSWORD` from the environment — **never commit them**. It fetches the released run tarballs, extracts each track into `./local-data/<track>/`, and prints the resulting layout so you can confirm it matches the paths in `datasets.yml` (which lists every dataset with its `responses`/`topics`, its `tira_id`, and its meta-evaluation `bucket`). Pass `--keep-archive` to retain the downloaded `.tar.gz`.
+
+This fetches the **pilot/training** data (v0.2); the TREC 2026 AutoJudge test data releases in August (a sibling `fetch_test_dataset.sh` will handle it). Corpora and topics for some tracks come from the host tracks — see the data release page. With the data in place, [run your judge over it](04-run-workflows.md).
+
 ## References
 
 - [auto-judge-base — Installation](https://github.com/trec-auto-judge/auto-judge-base#installation) — the core library your judge builds on
