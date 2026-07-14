@@ -21,6 +21,12 @@ git push -u origin main
 
 Your repository is now a first-class project: `origin` is yours, and the `starterkit` remote lets you pull template improvements later (`git fetch starterkit && git merge starterkit/main` — expect a few conflicts once you have diverged; resolve keeping your versions). Library updates (`autojudge-base`, `minima-llm`, ...) arrive separately through `pip`/`uv pip install --upgrade`, not through the template.
 
+**If you already clicked "Fork" on GitHub.** A fork keeps your repository in the starter kit's *fork network* — the "forked from trec-auto-judge/…" label and fork-based PR defaults. Detach it into a standalone project through the repository's **Settings → General → Danger Zone → Leave fork network** ("Unlink this repository from the fork network and make it standalone"). Unlinking also drops the implicit upstream link, so re-add it as the `starterkit` remote to keep pulling template improvements:
+
+```bash
+git remote add starterkit git@github.com:trec-auto-judge/auto-judge-starter-kit.git
+```
+
 ## Step 2 — Create a virtual environment and install
 
 ```bash
