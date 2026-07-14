@@ -108,7 +108,12 @@ If anything fails — or you cannot run Docker locally at all — reach out in t
 
 ## A complete session
 
-Condensed from a real, successful submission (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit), `queryonly` judge), with the cache mount shown as the recommended warm-cache flow from [Prompt cache](05-prompt-cache.md):
+This walks the whole pipeline end to end — fetch a real dataset, run your judge (which warms its prompt cache and produces the leaderboards), upload those leaderboards, then ship the code. Condensed from a real, successful submission (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit), `queryonly` judge).
+
+It performs both TIRA uploads, which are independent — do either or both:
+
+- **TIRA code upload** ships your Docker image and the organizers run it on every dataset, with their choice of LLMs. Reproducible, and the preferred path.
+- **TIRA data upload** ships the leaderboards *you* produced locally; nothing re-runs on TIRA's side. Faster, and the fallback when your judge cannot ship as runnable code.
 
 ```bash
 git clone git@github.com:YOUR-USER/YOUR-JUDGE.git && cd YOUR-JUDGE
@@ -116,9 +121,20 @@ uv venv && source .venv/bin/activate
 uv pip install -e '.[all]'
 
 export OPENAI_API_KEY=... OPENAI_BASE_URL=... OPENAI_MODEL=... CACHE_DIR=./cache
-bash run_kiddie.sh                    # local end-to-end test — also seeds ./cache for the judge it runs
-                                      # (seed with the SAME judge/variant/model you submit, or the mount misses)
+bash run_kiddie.sh                    # local end-to-end test on the synthetic dataset (warms ./cache for kiddie)
 
+# --- 1. fetch a real dataset (credentials from setup step 5) ---
+export TREC_AUTOJUDGE_USER=...  TREC_AUTOJUDGE_PASSWORD=...
+./fetch_pilot_dataset.sh --dataset dragun-repgen        # -> ./local-data/dragun25/
+
+# --- 2. run the judge, then DATA-upload its leaderboards ---
+python run_all_datasets.py --workflow judges/queryonly/workflow.yml --variant best \
+    --dataset dragun-repgen --upload-tira
+#   the run issues its LLM calls concurrently and writes into the same ./cache (warming it),
+#   then --upload-tira runs `tira-cli upload` for you. Drop --dataset to sweep every fetched
+#   dataset back to back into one cache; add --dry-run first to print the exact commands.
+
+# --- 3. CODE-upload the judge (dry-run builds + tests locally, uploads nothing) ---
 git status --porcelain                # must be empty: gitignore build artifacts, commit the rest
 git branch --show-current             # recommended: main
 
@@ -127,17 +143,15 @@ tira-cli login --token XXXXX
 tira-cli verify-installation --task trec-auto-judge --team YOUR-TEAM
 
 tira-cli code-submission --dry-run --path . \
-    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=cache' \
+    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge --dataset kiddie-20260605-training \
     --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+#   EMPTY_DIR cold-starts and lets TIRA re-seed the cache deterministically. To instead ship the
+#   ./cache you warmed above (cost-free replay on TIRA), swap in --mount-cache '$CACHE_DIR=cache'
+#   — see Prompt cache (pending confirmation that the mounted cache uploads).
 
-# dry run green? same command without --dry-run:
-tira-cli code-submission --path . \
-    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=cache' \
-    --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
-    --task trec-auto-judge --dataset kiddie-20260605-training \
-    --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+# dry run green? re-run the same command without --dry-run to upload the code.
 ```
 
 ## Uploading run outputs
