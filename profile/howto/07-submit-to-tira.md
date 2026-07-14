@@ -2,7 +2,7 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Meta-evaluation](06-meta-evaluation.md).*
 
-Submitting your auto-judge means making a **code submission**: `tira-cli` builds your repository's Dockerfile into an image, tests that image locally on the kiddie dataset, and — only if the outputs validate — uploads it to TIRA, where we run it on all datasets, potentially with multiple LLMs. Complete the [prerequisites](README.md#prerequisites) (TIRA account, team registration) before starting here.
+Submitting your auto-judge has two parts, and we ask you to do **both**: a **data submission** — you run your judge on the released datasets and upload the leaderboards — and a **code submission**, where `tira-cli` builds your repository's Dockerfile into an image, tests that image locally on the kiddie dataset, and — only if the outputs validate — uploads it to TIRA, where we run it on all datasets, potentially with multiple LLMs. Complete the [prerequisites](README.md#prerequisites) (TIRA account, team registration) before starting here.
 
 If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit ships an interactive walkthrough of this page: type `/autojudge-submit`.
 
@@ -10,9 +10,11 @@ If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the st
 
 There are three submission paths with different mechanics — most participants use the first:
 
-1. **Code submission** (Steps 1–4 below) — `tira-cli code-submission` ships your judge's Docker image and the organizers run it on all datasets. The reproducible, preferred path.
-2. **Data submission** — you run your judge locally and upload the *outputs* (leaderboards) with `tira-cli upload`. Useful when you cannot ship runnable code, or to lodge results quickly. See [Uploading run outputs](#uploading-run-outputs).
-3. **Meta-evaluation service** — deposit your `*.eval.txt` into a meta-evaluation service (rsync, per track), which correlates it against held truth. Some host institutions run their own; TIRA data submission is usually preferred.
+1. **Code submission** — `tira-cli code-submission` builds a Docker image for your judge and submits it via TIRA. Organizers will run it on all datasets for reproducibility. The preferred path.
+2. **Data submission** — you run your judge locally and upload the *outputs* (leaderboards) with `tira-cli upload`. Useful when you cannot ship runnable code, or to lodge results quickly.
+3. **Meta-evaluation service** (optional) — deposit your `*.eval.txt` into a meta-evaluation service (rsync, per track), which correlates it against held truth. Some host institutions run their own; TIRA data submission is usually preferred.
+
+> **Please make both a data submission and a code submission** — the data submission lodges your results now, the code submission lets us reproduce and re-run them.
 
 ## Step 1 — Meet the submission requirements
 
@@ -26,7 +28,8 @@ There are three submission paths with different mechanics — most participants 
 - **A Dockerfile at the repo root** specifies how your software is dockerized. Making it [dev-container](https://containers.dev/) compatible lets you develop directly inside the container.
 - **The sandbox has no internet access.** Your judge receives its LLM endpoint through forwarded environment variables — see [Configure your LLM endpoint](02-configure-llm-endpoint.md). Nothing else on the network will be reachable.
 - **No secrets in the image.** Never `COPY`/`ADD` API keys into the Dockerfile; pass them only via `--forward-environment-variable` so they are injected at run time.
-- **Submit from a clean shell.** Current `tira-cli` versions record the submitting shell's environment as build metadata, so unset (or never export) secrets unrelated to the submission before running `code-submission`.
+
+- **The evaluation datasets are fetched.** You will run your judge on them before submitting — see [setup step 5](01-setup-environment.md#step-5--fetch-the-evaluation-datasets).
 
 ## Step 2 — Install tira-cli and start Docker
 
@@ -38,7 +41,7 @@ uv pip install --upgrade tira
 
 (`pip3 install --upgrade tira` works equally outside a venv.)
 
-The Docker (or podman) daemon must be **running** when you submit — the build-and-test happens on your machine before anything is uploaded. Checking early saves a late surprise:
+For a code submission, the Docker (or podman) daemon must be **running** when you submit — the build-and-test happens on your machine before anything is uploaded. Checking early saves a late surprise:
 
 ```bash
 tira-cli verify-installation
@@ -58,24 +61,102 @@ Fetch your authentication token from TIRA: navigate to the [TREC AutoJudge task]
 <img width="1808" height="985" alt="TIRA UI showing the authentication token" src="https://github.com/user-attachments/assets/995cbd0e-1eae-4a70-a13b-acbf1d2229dc" />
 
 ```bash
-tira-cli login --token AUTH-TOKEN
-tira-cli verify-installation --task trec-auto-judge --team YOUR-TEAM
+tira-cli login --token <auth-token>
+tira-cli verify-installation --task trec-auto-judge --team <your-team>
 ```
 
 Scoping the verification to your task and team confirms not just the installation but also that your login and registration line up. A healthy verification looks like:
 
 <img width="821" height="180" alt="tira-cli verify-installation output" src="https://github.com/user-attachments/assets/51160132-eb19-4da3-8892-8a53adb41c71" />
 
-## Step 4 — Dry-run, then submit
 
-The dry run builds the image and tests it locally on kiddie without uploading anything:
+## Step 4 — Data submission: run your judge, upload run outputs
+
+**Before you start** double check that
+
+1. [the datasets are fetched](01-setup-environment.md#step-5--fetch-the-evaluation-datasets) into `./local-data/`, and
+2. each dataset's `tira_id` (upload target) and `bucket` (meta-eval track) is correctly listed in `datasets.yml`.
+
+**Run and warm prompt cache**
+
+Run your judge locally with an LLM model of your choice, following the [run-workflow instructions](04-run-workflows.md) or using [`run_all_datasets.py`](04-run-workflows.md#running-against-multiple-datasets). We highly recommend using a prompt cache, which lets you verify and reproduce your runs.
+
+```bash
+python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --variant <variant> --dataset dragun-repgen
+```
+
+Double-check that the run produced the expected `.eval.txt` leaderboards in `ir_measures` format.
+
+**Submit data to TIRA**
+
+To upload the locally computed autojudge results from the run's output directory to TIRA, call:
+
+```bash
+tira-cli upload --dataset <tira-id> --directory <out-dir> --system <run-name>
+
+# example (tira-id from datasets.yml; out-dir is the per-run folder the run above printed):
+tira-cli upload --dataset dragun-repgen-20260608-test \
+    --directory ./output/dragun-repgen/tinyjudge/context-all-all --system <my_runid>
+```
+
+`run_all_datasets.py` writes each result into its own folder so no two runs collide and each holds exactly one leaderboard — which is what `tira-cli upload` expects. The path is:
+
+```
+./output/<dataset>/<judge>/<variant>-<runs>-<topics>/
+```
+
+- `<dataset>` — the dataset name, `<judge>` — your judge's directory name, `<variant>` — the `--variant` (or `default`).
+- `<runs>` — the `--runs` filter, `all` or `prio1`; `<topics>` — the `--topics` filter, `all` or `assessed`.
+
+Both filters default to `all`, so a plain run lands in `<variant>-all-all` (above, `context-all-all` for the `tinyjudge` example's `context` variant). Add `--dry-run` to validate the leaderboard format without uploading.
+
+**Alternative: run judge and upload results in one step**
+
+`run_all_datasets.py` can run your judge on a dataset (or all datasets) and upload the leaderboards to TIRA in one command:
+
+```bash
+python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --variant <variant> \
+    --dataset dragun-repgen --upload-tira
+```
+
+Drop `--dataset` to sweep every fetched dataset.
+
+**Custom meta-evaluation service**
+
+To use this infrastructure after the TIRA submission has closed, you can deposit your `*.eval.txt` into a meta-evaluation service via `rsync`:
+
+```bash
+python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --variant <variant> \
+    --dataset dragun-repgen --upload-metaeval --metaeval-dest evalserver:/path/autojudge-eval/in
+```
+
+The dataset's `bucket` (from `datasets.yml`) is appended to the destination.
+
+**Local meta-evaluation**
+
+For method development, you can obtain a manual ground truth (such as the one provided for `kiddie`). With the dataset's `truth` leaderboard set in `datasets.yml`, run your judge and meta-evaluate against it locally:
+
+```bash
+python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --dataset kiddie --meta-evaluate
+```
+
+
+
+## Step 5 — Code Submission: Dry-run, then submit code
+
+Now submit the code to match the data submission.
+
+The dry run builds the image and tests it locally on kiddie to bring up any failures without uploading anything:
 
 ```bash
 export OPENAI_API_KEY=...  OPENAI_BASE_URL=...  OPENAI_MODEL=...  CACHE_DIR=./cache
 
+pytest
+git commit -a
+
 # Seed ./cache by running the SAME workflow/variant/model you submit below,
 # so the mounted cache replays instead of calling the LLM (see Prompt cache):
-auto-judge run --workflow judges/myjudge/workflow.yml --variant best \
+auto-judge run --workflow judges/<your-judge>/workflow.yml --variant <variant> \
     --rag-responses data/kiddie/runs/repgen/ --rag-topics data/kiddie/topics/kiddie-topics.jsonl \
     --out-dir ./output-kiddie/
 
@@ -87,18 +168,21 @@ tira-cli code-submission \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge \
     --dataset kiddie-20260605-training \
-    --command 'auto-judge run --workflow /auto-judge/judges/myjudge/workflow.yml --variant best --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+    --command 'auto-judge run --workflow /auto-judge/judges/<your-judge>/workflow.yml --variant <variant> --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 ```
-
-Three details that trip people up:
-
-- **Everything your judge needs goes inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
-- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=cache'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. Mount your *seeded* cache (`'$CACHE_DIR=cache'`): `tira-cli` uploads it with your code, so TIRA reproduces your results from cache with no LLM calls, and the local dry run replays in seconds instead of LLM-minutes. Seed it first by running the same workflow, variant, and `OPENAI_MODEL` you submit — mismatched prompts miss. (`EMPTY_DIR` instead of `cache` forces a cold start with fresh LLM calls; use it only to regenerate a cache. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.)
-- **One submission covers one judge/variant.** Submit multiple variants by repeating the command with a different `--command` string.
 
 When the dry run passes, remove `--dry-run` and run the same command to upload.
 
-### Troubleshooting the dry run
+
+
+Details to know:
+
+- **All judge specific command line options go inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
+- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=cache'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. Mount your *seeded* cache (`'$CACHE_DIR=cache'`): `tira-cli` uploads it with your code, so TIRA reproduces your results from cache with no LLM calls, and the local dry run replays in seconds instead of LLM-minutes. Seed it first by running the same workflow, variant, and `OPENAI_MODEL` you submit — mismatched prompts miss. (`EMPTY_DIR` instead of `cache` forces a cold start with fresh LLM calls; use it only to regenerate a cache. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.)
+- **One submission covers one judge/variant.** Submit multiple variants by repeating the tira-cli command with a different `--command` string.
+
+
+### Troubleshooting errors
 
 - **`No module named '...'` inside the container, although it installs fine locally** — the `trec-auto-judge-base` image runs Python from `/venv` (`PATH=/venv/bin`), so dependencies must be installed *into that venv*: the Dockerfile needs `RUN . /venv/bin/activate && uv pip install -e .[all]`, **not** `uv pip install --system ...` (a system install is invisible at runtime). Bites exactly when your judge adds dependencies beyond the template's.
 - **`Connection error` from your LLM client inside the container** — tira's local test runs **without network by default**, mirroring the TIRA sandbox. Testing against an external endpoint (OpenRouter, hosted OpenAI, ...) needs `--allow-network` on the `code-submission` command; alternatively, a mounted warm cache lets the judge complete with no network at all. Inside real TIRA the organizer-provided endpoint is cluster-internal, so this only concerns your local test.
@@ -106,9 +190,11 @@ When the dry run passes, remove `--dry-run` and run the same command to upload.
 
 If anything fails — or you cannot run Docker locally at all — reach out in the private TIRA chat that we opened with your team at registration ([prerequisites](README.md#prerequisites)), and we will find a way to get your submission in.
 
-## A complete session
 
-This walks the whole pipeline end to end — fetch a real dataset, run your judge (which warms its prompt cache and produces the leaderboards), upload those leaderboards, then ship the code. Condensed from a real, successful submission (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit), `queryonly` judge).
+
+## A complete session walkthrough
+
+This walks the whole pipeline end to end with the starter kit's `tinyjudge` example — fetch a real dataset, run the judge (which warms its prompt cache and produces the leaderboards), upload those leaderboards, then ship the code.
 
 It performs both TIRA uploads, which are independent — do either or both:
 
@@ -116,68 +202,72 @@ It performs both TIRA uploads, which are independent — do either or both:
 - **TIRA data upload** ships the leaderboards *you* produced locally; nothing re-runs on TIRA's side. Faster, and the fallback when your judge cannot ship as runnable code.
 
 ```bash
-git clone git@github.com:YOUR-USER/YOUR-JUDGE.git && cd YOUR-JUDGE
+git clone git@github.com:<your-user>/<your-judge>.git && cd <your-judge>
 uv venv && source .venv/bin/activate
 uv pip install -e '.[all]'
+uv pip install --upgrade tira
 
+tira-cli login --token <auth-token>
+
+# set LLM environment and prompt cache
 export OPENAI_API_KEY=... OPENAI_BASE_URL=... OPENAI_MODEL=... CACHE_DIR=./cache
-bash run_kiddie.sh                    # local end-to-end test on the synthetic dataset (warms ./cache for kiddie)
 
-# --- 1. fetch a real dataset (credentials from setup step 5) ---
+pytest                                # code runs and meets minimum requirements
+git status --porcelain                # must be empty: gitignore build artifacts, commit the rest
+git branch --show-current             # recommended: main branch
+
+
+# local end-to-end test on the synthetic dataset
+bash run_kiddie.sh
+
+# good practice: meta-evaluate YOUR judge against kiddie's manual ground truth before submitting
+python run_all_datasets.py --workflow judges/tinyjudge/workflow.yml --variant context \
+    --dataset kiddie --meta-evaluate
+
+
+# --- 1. fetch a real dataset (skip if already fetched in setup step 5; needs those credentials) ---
 export TREC_AUTOJUDGE_USER=...  TREC_AUTOJUDGE_PASSWORD=...
 ./fetch_pilot_dataset.sh --dataset dragun-repgen        # -> ./local-data/dragun25/
 
 # --- 2. run the judge, then DATA-upload its leaderboards ---
-python run_all_datasets.py --workflow judges/queryonly/workflow.yml --variant best \
+
+#   The first run issues its LLM calls concurrently (this takes a while) and caches every
+#   prompt and answer into ./cache, warming it for reuse.
+
+python run_all_datasets.py --workflow judges/tinyjudge/workflow.yml --variant context \
     --dataset dragun-repgen --upload-tira
-#   the run issues its LLM calls concurrently and writes into the same ./cache (warming it),
-#   then --upload-tira runs `tira-cli upload` for you. Drop --dataset to sweep every fetched
-#   dataset back to back into one cache; add --dry-run first to print the exact commands.
+
+#   --upload-tira uploads the leaderboards to TIRA (the data submission).
+#   Drop --dataset to run on every fetched dataset; add --dry-run first to
+#   print the commands without executing them.
+
 
 # --- 3. CODE-upload the judge (dry-run builds + tests locally, uploads nothing) ---
-git status --porcelain                # must be empty: gitignore build artifacts, commit the rest
-git branch --show-current             # recommended: main
-
-uv pip install --upgrade tira
-tira-cli login --token XXXXX
-tira-cli verify-installation --task trec-auto-judge --team YOUR-TEAM
+tira-cli verify-installation --task trec-auto-judge --team <your-team>
 
 tira-cli code-submission --dry-run --path . \
     --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge --dataset kiddie-20260605-training \
-    --command 'auto-judge run --workflow /auto-judge/judges/queryonly/workflow.yml --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
+    --command 'auto-judge run --workflow /auto-judge/judges/tinyjudge/workflow.yml --variant context --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 #   EMPTY_DIR cold-starts and lets TIRA re-seed the cache deterministically. To instead ship the
 #   ./cache you warmed above (cost-free replay on TIRA), swap in --mount-cache '$CACHE_DIR=cache'
 #   — see Prompt cache (pending confirmation that the mounted cache uploads).
 
-# dry run green? re-run the same command without --dry-run to upload the code.
+# dry run green? re-run the same command without --dry-run to upload the code,
+# testing it on a real dataset instead of kiddie:
+tira-cli code-submission --path . \
+    --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
+    --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
+    --task trec-auto-judge --dataset dragun-repgen-20260608-test \
+    --command 'auto-judge run --workflow /auto-judge/judges/tinyjudge/workflow.yml --variant context --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 ```
-
-## Uploading run outputs
-
-Instead of (or alongside) a code submission, run your judge locally and upload the `.eval.txt` leaderboards it produces. Both destinations consume the same `ir_measures` leaderboard, and [`run_all_datasets.py`](04-run-workflows.md#running-against-multiple-datasets) does the run and the upload in one step (`--dry-run` prints the exact commands first):
-
-```bash
-# 1. fetch the dataset (once) — credentials are in setup step 5
-./fetch_pilot_dataset.sh --dataset dragun-repgen
-
-# 2. run your judge and upload its leaderboard to TIRA:
-python run_all_datasets.py --workflow judges/myjudge/workflow.yml --dataset dragun-repgen --upload-tira
-
-#    add the meta-evaluation-service deposit alongside --upload-tira if you want it:
-#    --upload-metaeval --metaeval-dest c02:/autojudge-eval/in
-```
-
-The [datasets are fetched](01-setup-environment.md#step-5--fetch-the-evaluation-datasets) into `./local-data/`, and each dataset's `tira_id` (upload target) and `bucket` (meta-eval track) live in `datasets.yml`.
-
-By hand, the two interactions are:
-
-- **TIRA data upload** — `tira-cli upload --dataset <tira_id> --directory <out-dir>` zips the output directory and validates the leaderboard against the dataset's format (`trec-eval-leaderboard`); add `--dry-run` to validate without uploading, and `--system NAME` to label the run.
-- **Meta-evaluation service** — `rsync -Laur <out-dir>/*.eval.txt <dest>/<bucket>/`; the operator's watcher correlates each `*.eval.txt` against held truth.
 
 ## References
-
+- [Fetch the datasets](01-setup-environment.md#step-5--fetch-the-evaluation-datasets) — download the released runs into `./local-data/`
 - [Configure your LLM endpoint](02-configure-llm-endpoint.md) — how the endpoint reaches your judge inside the sandbox
+- [Run workflows](04-run-workflows.md) — `auto-judge run`, variants, and `run_all_datasets.py`
 - [Prompt cache](05-prompt-cache.md) — what the TIRA cache flags do
+- [Meta-evaluation](06-meta-evaluation.md) — correlating your leaderboards against truth
 - [TIRA participant documentation](https://docs.tira.io/participants/participate.html) — general TIRA submission background
+

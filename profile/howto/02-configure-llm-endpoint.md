@@ -33,7 +33,7 @@ llm = ChatOpenAI(model=llm_config.model, base_url=llm_config.base_url,
                  api_key=llm_config.api_key or "-", temperature=0.0)
 ```
 
-Environment notes: two TIRA-specific pitfalls come with LangChain. Its cache key includes `openai_api_base`, so a plain `SQLiteCache` breaks deterministic re-execution (the endpoint gets swapped, every lookup misses) — normalize the endpoint out of the key, as the [LangChain example judge](https://github.com/laura-dietz/langchain-starterkit) does with its endpoint-agnostic cache wrapper. And extra request parameters need their own environment route (the example judge reads `OPENAI_EXTRA_BODY` as JSON), since `llm_config.raw` is empty under environment-only configuration.
+Environment notes: two TIRA-specific pitfalls come with LangChain. Its cache key includes `openai_api_base`, so a plain `SQLiteCache` breaks deterministic re-execution (the endpoint gets swapped, every lookup misses) — normalize the endpoint out of the key with an endpoint-agnostic cache wrapper. And extra request parameters need their own environment route (for instance, read `OPENAI_EXTRA_BODY` as JSON), since `llm_config.raw` is empty under environment-only configuration.
 
 ### litellm
 
@@ -60,7 +60,7 @@ backend = OpenAIMinimaLlm(full_config)
 responses = backend.run_batched([MinimaLlmRequest(...), ...])    # parallelizes, rate-limits, retries, caches
 ```
 
-**DSPy** wires in through minima-llm's adapter: declare a `dspy.Signature` per judgment type — with explicit `reasoning` and `confidence` output fields — and run `run_dspy_batch(signature, items, converter, backend=...)`, which binds the backend as a `MinimaLlmDSPyLM` via `dspy.context` and yields structured outputs with the same batching and caching underneath (the [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit) judges work this way).
+**DSPy** wires in through minima-llm's adapter: declare a `dspy.Signature` per judgment type — with explicit `reasoning` and `confidence` output fields — and run `run_dspy_batch(signature, items, converter, backend=...)`, which binds the backend as a `MinimaLlmDSPyLM` via `dspy.context` and yields structured outputs with the same batching and caching underneath.
 
 Environment notes: minima-llm natively reads the exact task-provided names (`OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY`, `CACHE_DIR`), so no rerouting is needed, and its cache key deliberately excludes the endpoint URL — compatible with TIRA's deterministic re-execution out of the box. See [minima-llm — Quick Start & DSPy](https://github.com/trec-auto-judge/minima-llm#quick-start).
 

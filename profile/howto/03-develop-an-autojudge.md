@@ -163,8 +163,8 @@ Declare the schema once in a `LeaderboardSpec` — each `MeasureSpec` carries a 
 
 Nuggets capture what a good answer should contain — as questions (`NuggetQuestion` with gold `Answer`s, optionally sub-nuggets and document `Reference`s) or as fact-like claims (`NuggetClaim`). Collect them per topic in a `NuggetBank` (`bank.add_nuggets([...])`, plus a `Creator` record documenting whether a human or an LLM produced them), and return all banks keyed by topic as `NuggetBanks`. Two strategies to learn from:
 
-- **Query-only generation** — ask the LLM for nugget questions from the topic alone (prefnugget's `queryonly` judge): simple, cheap, and independent of the responses being judged.
-- **Response-grounded / contrastive extraction** — mine nuggets from the responses themselves; prefnugget's main judges first rank responses by pairwise LLM preference, then iteratively extract *differentiating* questions from winner/loser pairs, deduplicating each round and capping the nugget bank (e.g. at 20 questions).
+- **Query-only generation** — ask the LLM for nugget questions from the topic alone: simple, cheap, and independent of the responses being judged.
+- **Response-grounded / contrastive extraction** — mine nuggets from the responses themselves; for example, rank responses by pairwise LLM preference, then iteratively extract *differentiating* questions from winner/loser pairs, deduplicating each round and capping the nugget bank (e.g. at 20 questions).
 
 The judging phase then typically grades every (response, nugget) pair and aggregates — coverage, average grade, max grade — into the leaderboard measures.
 
@@ -180,7 +180,7 @@ Qrels record fine-grained relevance judgments as `(topic_id, doc_id, grade)` row
 
 ### Configuring hyperparameters
 
-Anything you might want to vary — prompt style, number of nuggets, grading scale — belongs in `workflow.yml` `settings` (or the phase-specific `nugget_settings`/`judge_settings`), which arrive in your methods as `**kwargs`. Named `variants` then override settings per configuration, so one workflow file expresses your whole method family and [`--variant`](04-run-workflows.md) selects one member; prefnugget's workflow files, with a dozen variants each, show this at scale.
+Anything you might want to vary — prompt style, number of nuggets, grading scale — belongs in `workflow.yml` `settings` (or the phase-specific `nugget_settings`/`judge_settings`), which arrive in your methods as `**kwargs`. Named `variants` then override settings per configuration, so one workflow file expresses your whole method family and [`--variant`](04-run-workflows.md) selects one member; the starter kit's `complete_example` workflow, with several variants and a couple of sweeps, shows the pattern.
 
 → API: [Workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) — settings, variants, sweeps, custom nugget formats
 
@@ -190,8 +190,7 @@ Anything you might want to vary — prompt style, number of nuggets, grading sca
 |---------|----------------------|
 | `judges/complete_example/` (starter kit) | the full three-protocol structure, modular classes, an exhaustively-commented `workflow.yml` with variants and sweeps |
 | `judges/tinyjudge/` (starter kit) | the smallest realistic LLM judge: batched requests, prompt caching, clean `llm_config` handling |
-| [prefnugget-starterkit](https://github.com/laura-dietz/prefnugget-starterkit) | a research-grade judge family: pairwise preference ranking, contrastive nugget extraction, DSPy signatures, variants at scale |
-| [ir_axioms AutoJudge](https://github.com/webis-de/ir_axioms/tree/main/trec-auto-judge) | an axiomatic (non-generative) judge, including how to package heavyweight dependencies in Docker |
+| `judges/naive/` (starter kit) | a minimal non-LLM baseline: the least code needed to emit a valid leaderboard |
 
 ## Conventions that keep judges well-behaved
 
