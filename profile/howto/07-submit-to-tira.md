@@ -154,8 +154,8 @@ export OPENAI_API_KEY=...  OPENAI_BASE_URL=...  OPENAI_MODEL=...  CACHE_DIR=./ca
 pytest
 git commit -a
 
-# Seed ./cache by running the SAME workflow/variant/model you submit below,
-# so the mounted cache replays instead of calling the LLM (see Prompt cache):
+# Optional: run the same workflow/variant/model locally to validate end to end
+# (and to seed ./cache, if you later switch to the warm-cache mount — see Prompt cache):
 auto-judge run --workflow judges/<your-judge>/workflow.yml --variant <variant> \
     --rag-responses data/kiddie/runs/repgen/ --rag-topics data/kiddie/topics/kiddie-topics.jsonl \
     --out-dir ./output-kiddie/
@@ -164,7 +164,7 @@ tira-cli code-submission \
     --dry-run \
     --path . \
     --cache-behaviour deterministic \
-    --mount-cache '$CACHE_DIR=cache' \
+    --mount-cache '$CACHE_DIR=EMPTY_DIR' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
     --task trec-auto-judge \
     --dataset kiddie-20260605-training \
@@ -178,7 +178,7 @@ When the dry run passes, remove `--dry-run` and run the same command to upload.
 Details to know:
 
 - **All judge specific command line options go inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
-- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=cache'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. Mount your *seeded* cache (`'$CACHE_DIR=cache'`): `tira-cli` uploads it with your code, so TIRA reproduces your results from cache with no LLM calls, and the local dry run replays in seconds instead of LLM-minutes. Seed it first by running the same workflow, variant, and `OPENAI_MODEL` you submit — mismatched prompts miss. (`EMPTY_DIR` instead of `cache` forces a cold start with fresh LLM calls; use it only to regenerate a cache. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.)
+- **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. With `EMPTY_DIR`, TIRA starts from an empty cache and re-executes your judge deterministically to seed then replay it. Mounting your locally-seeded cache instead (`'$CACHE_DIR=cache'`) would let TIRA replay from it with no LLM calls — **pending confirmation that `tira-cli` uploads the mounted cache** (see [Prompt cache](05-prompt-cache.md)); seed it by running the same workflow, variant, and `OPENAI_MODEL` you submit, since mismatched prompts miss. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.
 - **One submission covers one judge/variant.** Submit multiple variants by repeating the tira-cli command with a different `--command` string.
 
 
