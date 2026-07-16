@@ -5,6 +5,7 @@
 * [Starter Kit](https://github.com/trec-auto-judge/auto-judge-starter-kit)  Start developing your auto-judge!
 * [Participant HowTo](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/README.md): The canonical step-by-step guide, one page per activity — [setup](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/01-setup-environment.md), [LLM endpoint](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/02-configure-llm-endpoint.md), [develop an autojudge](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/03-develop-an-autojudge.md), [running](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/04-run-workflows.md), [prompt cache](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/05-prompt-cache.md), [meta-evaluation](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/06-meta-evaluation.md), and [submission](https://github.com/trec-auto-judge/.github/blob/main/profile/howto/07-submit-to-tira.md).
 * [Submission guidelines](https://github.com/trec-auto-judge/.github/blob/main/profile/guidelines.md): A one-page summary of the points that commonly cause problems.
+* [Infrastructure Status](https://trec-auto-judge.github.io/infrastructure-status/): An (still in early development) page that intends to show the status of different parts of the infrastructure.
 * [Meta-evaluation](https://github.com/trec-auto-judge/auto-judge-evaluate) For local evaluation and development.
 
 ![Auto-Judge](examiner-logo-animated.gif)
