@@ -134,6 +134,8 @@ Your judge receives an iterable of `Report` objects (one system's answer to one 
 
 Rather than touch `responses` directly, prefer the accessors: `get_text()` (whole answer), `get_sentences()` (plain strings), `get_paragraphs()`, and — because the tracks disagree on how citations attach (RAGtime maps doc-id→confidence, NeuCLIR lists doc-ids, RAG'24 lists indices into `references`) — `get_sentences_with_citations()`, which normalizes all three into `NeuclirReportSentence` with `.citations` as a plain `list[str]` of doc ids. Reach for it whenever your judge cares what a response *cites*, not just what it says.
 
+If you reuse `Report` objects to build a track submission of your own, verify each before writing it: `Report.verify_rag()` checks the TREC RAG 2026 fields (required metadata, deduped references, ≤3 citations/sentence, every reference cited, 1024-word limit); `Report.verify_ragtime()` checks the RAGTIME format. Judges that only read reports skip this; a submission run should not.
+
 **`Document`** — an entry in `Report.documents` (or a corpus you export):
 
 | Field | Type | Meaning |
