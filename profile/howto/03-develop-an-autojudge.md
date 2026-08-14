@@ -2,7 +2,7 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Configure your LLM endpoint](02-configure-llm-endpoint.md) · Next: [Run workflows](04-run-workflows.md).*
 
-A judge plugs into the framework by implementing the `AutoJudge` protocol — up to three methods that the workflow runner calls in order — and by declaring which of them to run in a `workflow.yml`. This page first shows the two common judge shapes (minimal and full protocol), then walks through each part of the data model with guidance on how to approach it, and closes with the conventions that keep judges reproducible. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit's `/autojudge-develop` skill walks you through this page and the three that follow (running, caching, meta-evaluation).
+A judge plugs into the framework by implementing the `AutoJudge` protocol — up to three methods that the workflow runner calls in order — and by declaring which of them to run in a `workflow.yml`. This page first shows the three common judge shapes (minimal, full protocol, and judge-only with external nugget banks), then walks through each part of the data model with guidance on how to approach it, and closes with the conventions that keep judges reproducible. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit's `/autojudge-develop` skill walks you through this page and the three that follow (running, caching, meta-evaluation).
 
 ## Where your code lives
 
@@ -104,6 +104,40 @@ settings:
 ```
 
 Separate classes per phase (`nugget_class`, `qrels_class`, `judge_class`) work as well — `judges/complete_example/` demonstrates the modular pattern, and the [workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) documents every lifecycle flag.
+
+## Judge-only with externally built nugget banks
+
+A third shape sits between the two: the judge implements only `judge()` (the `LeaderboardJudgeProtocol`), and the nugget banks come from elsewhere — a previous run, another judge, or a hand-curated file — supplied at run time with [`--nugget-banks`](04-run-workflows.md#development-flags-worth-knowing) (a JSON/JSONL file or a directory). The class **must** still declare `nugget_banks_type`, or the runner cannot deserialize the banks:
+
+```python
+from autojudge_base import NuggetBanks
+
+class MyJudge:
+    nugget_banks_type = NuggetBanks   # required — tells the runner how to load --nugget-banks
+
+    def judge(self, rag_responses, rag_topics, llm_config, **kwargs) -> Leaderboard:
+        nugget_banks = kwargs.get("nugget_banks")
+        # score responses against the prebuilt nuggets
+        return leaderboard
+```
+
+with `workflow.yml` wiring the banks into `judge()` while leaving nugget creation off:
+
+```yaml
+judge_class: "judges.myjudge.my_judge:MyJudge"
+
+create_nuggets: false
+judge: true
+judge_uses_nuggets: true
+
+settings:
+  filebase: "{_name}"
+```
+
+```bash
+auto-judge run --workflow judges/myjudge/workflow.yml \
+    --nugget-banks path/to/banks.nuggets.jsonl ...
+```
 
 ## Working with the data model
 

@@ -53,7 +53,10 @@ Two ways to change a setting without forking your code: a **variant** names a re
 | Flag | Purpose |
 |------|---------|
 | `--limit-topics 2` | run on a subset of topics (fast iteration) |
-| `--topic TOPIC_ID` | run on one specific topic |
+| `--topic TOPIC_ID` | run on one specific topic (repeatable) |
+| `--limit-runs N` | run on only the first N run_ids (fast iteration) |
+| `--run RUN_ID` | run on one specific run (repeatable) |
+| `--nugget-banks PATH` | load prebuilt nugget banks — a JSON/JSONL file or a directory of them — instead of (or as input to) `create_nuggets()` |
 | `--variant NAME` | run a named variant from `workflow.yml` (`--all-variants` runs them all) |
 | `--sweep NAME` | run a parameter sweep |
 | `-S KEY=VALUE` | override a shared setting |
@@ -85,10 +88,13 @@ Given `filebase: "myjudge"` and `--out-dir ./output/`:
 | File | When produced | Purpose |
 |------|--------------|---------|
 | `myjudge.eval.txt` | `judge: true` | leaderboard in evaluation format — the primary input for [meta-evaluation](06-meta-evaluation.md) |
+| `myjudge.eval.measures.yml` | `judge: true` | the `MeasureSpec` descriptions and dtypes accompanying the leaderboard |
 | `myjudge.judgment.json` | `judge: true` | leaderboard scores (JSON) |
 | `myjudge.nuggets.jsonl` | `create_nuggets: true` | generated nugget banks |
 | `myjudge.qrels` | `create_qrels: true` | relevance judgments |
 | `myjudge.config.yml` | always | full config snapshot for reproducibility |
+
+When `--limit-topics` or `--topic` is set, the runner prefixes the filebase with `tmp-` (e.g. `tmp-myjudge.eval.txt`) so partial test runs never overwrite or get mistaken for full-run outputs.
 
 When inspecting `*.nuggets.jsonl` by hand, expect one `NuggetBank` JSON object per line, with the questions stored under `nugget_bank` as a **mapping keyed by nugget id** (not a list) — iterate its `.values()`.
 
