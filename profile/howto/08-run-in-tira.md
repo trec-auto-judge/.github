@@ -10,6 +10,7 @@ Before running AutoJudge systems trough TIRA, please first get to know how [TIRA
 
 After an AutoJudge system got submitted, it appears in the UI, and one can start it there, by passing the environment variables that this AutoJudge needs (the required environment variables got collected during the submission), this looks like this:
 
+<img width="1473" height="896" alt="Screenshot_20260820_215958" src="https://github.com/user-attachments/assets/57315c32-6bea-4e04-b2e9-576b9b223b29" />
 
 Please note that it is rather unconvenient to start many software executions via the UI, so we only do this for spot-checks, and after a software seems to work, we include its execution into CLI scripts.
 
