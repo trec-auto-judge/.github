@@ -17,4 +17,23 @@ Please note that it is rather unconvenient to start many software executions via
 
 ## Run Collected AutoJudge Systems via the CLI
 
+To run many collected softwares against multiple LLMs with potentially multiple repetitions on multiple datasets, we use the CLI.
+
+On a high level, the command for this would be:
+
+```
+export OPENAI_API_KEY=...
+export OPENAI_BASE_URL=...
+export OPENAI_MODEL=...
+
+tira-cli run remote \
+	--approach APPROACH-1 APPROACH-2 ... APPROACH-N \
+	--dataset DATASET-1 DATASET-2 DATASET-3 \
+	--parallelism 4 \
+	--forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL
+```
+
+This specifies the approaches that should be executed (i.e., APPROACH-1 to APPROACH-N are approaches that are submitted to TIRA) on the datasets and the parallelism (e.g., above 4 submissions can run in parallel). This cli call would terminate after everything got executed, while ensuring that not more than 4 softwares run in parallel at a moment (to not put too high load against a single LLM).
+
+We collect all scripts and such commands in the private repository [https://github.com/trec-auto-judge/evaluation-in-progress](https://github.com/trec-auto-judge/evaluation-in-progress).
 
