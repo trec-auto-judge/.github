@@ -6,4 +6,13 @@ After we collected code submissions of AutoJudge systems in TIRA (e.g., a set of
 
 Before running AutoJudge systems trough TIRA, please first get to know how [TIRA handles Credentials for LLMs via REST API](https://docs.tira.io/participants/llms-via-rest-api.html).
 
-...
+## Run an Collected AutoJudge System via the UI
+
+After an AutoJudge system got submitted, it appears in the UI, and one can start it there, by passing the environment variables that this AutoJudge needs (the required environment variables got collected during the submission), this looks like this:
+
+
+Please note that it is rather unconvenient to start many software executions via the UI, so we only do this for spot-checks, and after a software seems to work, we include its execution into CLI scripts.
+
+## Run Collected AutoJudge Systems via the CLI
+
+
