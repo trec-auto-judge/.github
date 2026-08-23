@@ -134,6 +134,12 @@ datasets:
     assessed_topics: [...]   # subset selected by --topics assessed
 ```
 
+`corpus` is a reference to the documents, not necessarily a local copy: a directory
+path, an ir-datasets ID, or a URL saying where the corpus can be obtained (for
+instance an `https://` or `hf://` reference from the host track's guidelines). It is
+passed through to `create_nuggets`/`create_qrels`/`judge` **unresolved**, so a judge
+that reads documents decides how to fetch or open it.
+
 Real datasets are fetched into `./local-data/` first — see [fetch the datasets](01-setup-environment.md#step-5--fetch-the-evaluation-datasets).
 
 Beyond running, `run_all_datasets.py` can evaluate and submit each run's leaderboards in the same pass:
