@@ -153,5 +153,5 @@ The submission semantics of the last two are in [Uploading run outputs](07-submi
 ## References
 
 - [Workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) — canonical `workflow.yml` schema: execution phases, settings, variants, sweeps, lifecycle flags, CLI reference
-- [auto-judge-base — CLI](https://github.com/trec-auto-judge/auto-judge-base#cli) — `run`, `export-corpus`
+- [auto-judge-base — CLI](https://github.com/trec-auto-judge/auto-judge-base#cli) — `run`
 - [auto-judge-evaluate](https://github.com/trec-auto-judge/auto-judge-evaluate) — `leaderboard` (summary statistics) and `eval-result` (format conversion) for post-processing run outputs
