@@ -2,19 +2,34 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Set up your dev environment](01-setup-environment.md) · Next: [Develop an AutoJudge](03-develop-an-autojudge.md).*
 
-Every LLM-based judge receives its endpoint, model, and API key through a single injected object — the `llm_config` parameter passed to your judge methods — and must read them from there rather than hardcode them. That indirection is what allows the same judge code to run against your local endpoint during development and against the organizer-provided endpoint inside TIRA's sandbox, unchanged. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit's `/autojudge-setup` skill walks you through this page together with the environment setup.
+You configure the endpoint through **environment variables**. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit's `/autojudge-setup` skill walks you through this page together with the environment setup.
+
+## Environment variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENAI_BASE_URL` | API endpoint URL (alias: `OPENAI_API_BASE`) | (required) |
+| `OPENAI_MODEL` | Model identifier (alias: `LLM_MODEL`) | `gpt-4o-mini` |
+| `OPENAI_API_KEY` | API key | None (may be empty for local endpoints) |
+| `CACHE_DIR` | Prompt-cache directory (alias: `LLM_CACHE_DIR`) | None (disabled) — see [Prompt cache](05-prompt-cache.md) |
+
+If you use [minima-llm](https://github.com/trec-auto-judge/minima-llm) as your client, it reads further variables for batching, rate limiting, retries and cache behaviour — see its [environment variables](https://github.com/trec-auto-judge/minima-llm#environment-variables). Those are client settings; the four above are the contract every judge shares.
 
 ## What your judge receives
 
-All three protocol methods (`judge`, `create_nuggets`, `create_qrels`) get an `llm_config: LlmConfigBase` carrying:
+All three protocol methods (`judge`, `create_nuggets`, `create_qrels`) get an `llm_config: LlmConfigBase`, which is **the parsed view of those same variables**:
 
-| Field | Content |
-|-------|---------|
-| `base_url` | endpoint URL (OpenAI-compatible) |
-| `model` | resolved model identifier |
-| `api_key` | key/token (may be empty for local endpoints) |
-| `cache_dir` | prompt-cache directory, if enabled (see [Prompt cache](05-prompt-cache.md)) |
-| `raw` | extra config dict — empty under environment-only configuration; retained so the `MinimaLlmConfig.from_dict(llm_config.raw)` pattern keeps working |
+| Field | Content | Read from |
+|-------|---------|-----------|
+| `base_url` | endpoint URL (OpenAI-compatible) | `OPENAI_BASE_URL`, else `OPENAI_API_BASE` |
+| `model` | resolved model identifier | `OPENAI_MODEL`, else `LLM_MODEL` |
+| `api_key` | key/token (may be empty for local endpoints) | `OPENAI_API_KEY` |
+| `cache_dir` | prompt-cache directory, if enabled (see [Prompt cache](05-prompt-cache.md)) | `CACHE_DIR`, else `LLM_CACHE_DIR` |
+| `raw` | extra config dict — empty under environment-only configuration; retained so the `MinimaLlmConfig.from_dict(llm_config.raw)` pattern keeps working | — |
+
+**Read whichever you prefer.** `llm_config` is recommended — it is already parsed, its field names do not vary, and it keeps working if the framework ever gains another configuration source — but reading the environment directly is fine, because that is exactly what `llm_config` does.
+
+What you must *not* do is **hardcode** an endpoint or key, or leave the lookup to your LLM library: the libraries disagree on names (the openai SDK reads `OPENAI_BASE_URL`, litellm's convention is `OPENAI_API_BASE`), so precedence becomes implicit and breaks when TIRA injects a different endpoint. That is the indirection that lets the same judge code run against your local endpoint during development and against the organizer-provided endpoint inside TIRA's sandbox, unchanged.
 
 ## Choose your LLM client — any OpenAI-compatible client works
 
