@@ -2,6 +2,8 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Run workflows](04-run-workflows.md) · Next: [Meta-evaluation](06-meta-evaluation.md).*
 
+> Working with evaluation data? The [data-handling policy](data-policy.md) governs what your coding agent may look at, and how to debug a failure it may not inspect.
+
 LLM judges re-run constantly during development, and without a cache every re-run repeats every LLM call — slow, expensive, and noisy. A prompt cache stores each response keyed by the exact request, so repeated runs are instant. That same cache then does a second, larger job at submission time: you ship it with your judge, TIRA reproduces your results from it without spending a single LLM call, and — because a judge that reproduces from its cache alone has *proven* it is reproducible — the cache doubles as your proof of correctness, which TIRA validates automatically. This page walks that lifecycle, the one contract your cache must meet, three ways to meet it (minima-llm, the caching proxy, or your client's own disk cache), and the TIRA flags that drive it.
 
 ## The lifecycle: seed locally, ship the cache, prove reproducibility

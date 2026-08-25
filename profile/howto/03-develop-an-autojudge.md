@@ -2,6 +2,8 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Configure your LLM endpoint](02-configure-llm-endpoint.md) · Next: [Run workflows](04-run-workflows.md).*
 
+> Working with evaluation data? The [data-handling policy](data-policy.md) governs what your coding agent may look at, and how to debug a failure it may not inspect.
+
 A judge plugs into the framework by implementing the `AutoJudge` protocol — up to three methods that the workflow runner calls in order — and by declaring which of them to run in a `workflow.yml`. This page first shows the three common judge shapes (minimal, full protocol, and judge-only with external nugget banks), then walks through each part of the data model with guidance on how to approach it, and closes with the conventions that keep judges reproducible. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit's `/autojudge-develop` skill walks you through this page and the three that follow (running, caching, meta-evaluation).
 
 ## Where your code lives

@@ -2,6 +2,8 @@
 
 Welcome! Participating in TREC AutoJudge means building an automatic judge for RAG responses and submitting it to TIRA, and this guide walks you through the whole journey — from an empty machine to a completed submission — one activity at a time:
 
+**Before you touch evaluation data, read the [data-handling policy](data-policy.md).** The datasets are anonymized and mostly off-limits to your coding agent, though your judge may read everything; the policy says which is which and how to debug without looking.
+
 | # | Activity | You will... |
 |---|----------|-------------|
 | 1 | [Set up your dev environment](01-setup-environment.md) | clone the starter kit into your own repo, install with `uv`, verify on the kiddie dataset |

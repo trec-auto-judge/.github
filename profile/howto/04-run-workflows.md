@@ -2,6 +2,8 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Develop an AutoJudge](03-develop-an-autojudge.md) · Next: [Prompt cache](05-prompt-cache.md).*
 
+> Working with evaluation data? The [data-handling policy](data-policy.md) governs what your coding agent may look at, and how to debug a failure it may not inspect.
+
 The `auto-judge run` command executes your judge as declared in its `workflow.yml` — reading RAG responses and topics, calling your protocol methods in phase order, and writing the leaderboard and companion files to an output directory. This page covers the everyday commands; the [workflow guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/workflow/README.md) in auto-judge-base remains the canonical reference for the full `workflow.yml` schema (variants, sweeps, lifecycle flags, settings).
 
 ## The basic run
