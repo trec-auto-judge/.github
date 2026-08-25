@@ -2,6 +2,11 @@
 
 The [Participant HowTo](howto/README.md) covers the full process in seven pages (setup, LLM endpoint, developing, running, prompt cache, meta-evaluation, submission). If you use Claude Code, the starter kit ships the skills `/autojudge-setup`, `/autojudge-develop`, and `/autojudge-submit`, which walk through the same steps. The notes below summarize the points that commonly cause problems.
 
+## Evaluation data
+
+- **Before touching evaluation data, read the [data-handling policy](howto/data-policy.md).** The datasets are anonymized and mostly off-limits to your *coding agent*, while the *judge* you build may read everything — the policy says which is which, and how to debug a failure without looking. Each dataset also ships it as `AGENTS.md` and `CLAUDE.md`, but that copy is only found once the data is already open.
+- Do not work out which participant produced which run, by any method — including comparison against your own submissions, hashing, or matching on writing style. Judges are built before the truth data exists and the whole dataset is the test set, so a single identified run or a threshold tuned on a restricted topic undermines the evaluation for everyone, irreversibly.
+
 ## Setup
 
 - Please clone the [starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) into a new repository of your own (rather than a GitHub fork) and keep the original as a `starterkit` remote; see the [setup page](howto/01-setup-environment.md) for the commands.
