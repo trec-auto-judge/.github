@@ -2,6 +2,8 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). This is a constraint on every activity, not a step in the sequence — read it before touching evaluation data.*
 
+Each evaluation dataset ships this policy in its root as `AGENTS.md` and `CLAUDE.md` (byte-identical). Coding agents that scan the project tree pick it up automatically when the dataset sits inside the repository; when it does not, the copy in the [starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit)'s `CLAUDE.md` still applies. Either way this page is the canonical text.
+
 ### Why this exists
 AutoJudges are built before the truth data exists. The topics you work on now are the ones the human assessments will later be collected for; the whole evaluation dataset is the test set, and there is no held-out remainder. A judge shaped by the content of those responses, by knowing whose run is whose, or by a score signal from restricted topics is no longer a blind predictor of a truth it has not seen. The cost of a leak is not proportional to its size: one identified run or one threshold tuned on a restricted topic undermines the claim the whole evaluation makes, for every participant, and it cannot be undone afterwards.
 
