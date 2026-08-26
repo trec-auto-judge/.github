@@ -23,8 +23,7 @@ The user is `trec2026`, and the password is the password of the TREC Active Part
 ```bash
 export TREC_AUTOJUDGE_USER=trec2026
 export TREC_AUTOJUDGE_PASSWORD=...   # the TREC Active Participants password
-./fetch_pilot_dataset.sh --dataset rag26
-./fetch_pilot_dataset.sh --dataset ragtime26
+./fetch_datasets.py --test-2026
 ```
 
 Each track extracts to `./local-data/<track>/`; the starter kit's `datasets.yml` already references both test datasets by name.

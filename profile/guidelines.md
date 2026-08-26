@@ -20,7 +20,7 @@ The [Participant HowTo](howto/README.md) covers the full process in seven pages 
 
 ## TREC 2026 AutoJudge Test
 
-The test data is released — see the [participation checklist](howto/trec-2026-autojudge-test.md); **submission deadline: September 30, 2026**. In short: fetch the two test datasets (`./fetch_pilot_dataset.sh --dataset rag26` / `ragtime26`), run your judge and upload the leaderboards (`python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --meta-evaluate --dataset rag26-generation --upload-tira`, likewise for `ragtime26-repgen`), and ship the matching code submission. Local meta-evaluation on the test data correlates against a placeholder truth — a pipeline check, not a quality signal.
+The test data is released — see the [participation checklist](howto/trec-2026-autojudge-test.md); **submission deadline: September 30, 2026**. In short: fetch the two test datasets (`./fetch_datasets.py --test-2026`), run your judge and upload the leaderboards (`python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --meta-evaluate --dataset rag26-generation --upload-tira`, likewise for `ragtime26-repgen`), and ship the matching code submission. Local meta-evaluation on the test data correlates against a placeholder truth — a pipeline check, not a quality signal.
 
 ## Submission
 

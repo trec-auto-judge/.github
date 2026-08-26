@@ -229,7 +229,7 @@ python run_all_datasets.py --workflow judges/tinyjudge/workflow.yml --variant co
 
 # --- 1. fetch a real dataset (skip if already fetched in setup step 5; needs those credentials) ---
 export TREC_AUTOJUDGE_USER=...  TREC_AUTOJUDGE_PASSWORD=...
-./fetch_pilot_dataset.sh --dataset dragun-repgen        # -> ./local-data/dragun25/
+./fetch_datasets.py --dataset dragun-repgen             # -> ./local-data/dragun25/
 
 # --- 2. run the judge, then DATA-upload its leaderboards ---
 
