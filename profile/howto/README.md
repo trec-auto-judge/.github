@@ -13,11 +13,12 @@ Welcome! Participating in TREC AutoJudge means building an automatic judge for R
 | 5 | [Prompt cache](05-prompt-cache.md) | make repeated LLM runs instant and deterministic; debug cache misses |
 | 6 | [Meta-evaluation](06-meta-evaluation.md) | measure how well your judge agrees with ground truth |
 | 7 | [Submit to TIRA](07-submit-to-tira.md) | dry-run and upload your judge as a code submission |
-| 8 | [Mostly Organizers: Run in TIRA](08-run-in-tira.md) | run collected code submissions in TIRA (mostly organizers are intended to do this, but you can do this as well) |
+
+How we organizers run the collected code submissions is documented separately in [Run Collected AutoJudge Systems in TIRA](../organizers-howto/run-in-tira.md) — as a participant you may also use it, e.g., to run your submission against a custom LLM.
 
 **The TREC 2026 AutoJudge test data is released** — the [TREC 2026 AutoJudge Test page](trec-2026-autojudge-test.md) is the participation checklist: fetch the two test datasets, run your judge, upload leaderboards and code.
 
-The [submission guidelines](../guidelines.md) summarize, on one page, the points that commonly cause problems. Newcomers should read 1 → 7 in order (step 8 is mostly for organizers, participants can still do it, e.g., to run with custom LLMs, but we mostly expect that we as organizers do this); returning participants can jump straight to the activity they need. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit provides three interactive walkthroughs that together cover every activity: `/autojudge-setup` (1–2), `/autojudge-develop` (3–6), and `/autojudge-submit` (7).
+The [submission guidelines](../guidelines.md) summarize, on one page, the points that commonly cause problems. Newcomers should read 1 → 7 in order; returning participants can jump straight to the activity they need. In [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit provides three interactive walkthroughs that together cover every activity: `/autojudge-setup` (1–2), `/autojudge-develop` (3–6), and `/autojudge-submit` (7).
 
 This guide is the **canonical documentation** for participating — the [starter kit](https://github.com/trec-auto-judge/auto-judge-starter-kit) README and skills intentionally defer to it. Deep reference material stays with the libraries it documents ([auto-judge-base](https://github.com/trec-auto-judge/auto-judge-base), [minima-llm](https://github.com/trec-auto-judge/minima-llm), [auto-judge-evaluate](https://github.com/trec-auto-judge/auto-judge-evaluate)); each activity page links to the relevant sections.
 
