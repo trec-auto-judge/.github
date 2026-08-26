@@ -6,6 +6,8 @@ Submitting your auto-judge has two parts, and we ask you to do **both**: a **dat
 
 If you use [Claude Code](https://docs.anthropic.com/en/docs/claude-code), the starter kit ships an interactive walkthrough of this page: type `/autojudge-submit`.
 
+> **Submitting for the TREC 2026 AutoJudge test?** This page explains the mechanics for any dataset; the [TREC 2026 AutoJudge Test page](trec-2026-autojudge-test.md) is the checklist for that campaign — which datasets, which commands.
+
 ## Three ways to submit
 
 There are three submission paths with different mechanics — most participants use the first:

@@ -18,6 +18,10 @@ The [Participant HowTo](howto/README.md) covers the full process in seven pages 
 - Configure the endpoint through environment variables (`OPENAI_BASE_URL`, `OPENAI_MODEL`, `OPENAI_API_KEY`, `CACHE_DIR` — see the [endpoint page](howto/02-configure-llm-endpoint.md)). Read them either from the injected `llm_config` parameter, which is recommended, or directly from the environment — `llm_config` is just the parsed view of the same variables. Do not hardcode endpoints or keys, and do not leave the lookup to your LLM library, whose variable names differ. Any OpenAI-compatible client works (minima-llm, DSPy, LangChain, litellm, plain SDK). On TIRA, we provide the endpoint and may run your judge with several models.
 - Use a prompt cache under `$CACHE_DIR`, with a disk-based backend, and make sure the cache key does not include the endpoint URL: the submission check re-executes your judge with the endpoint disabled and expects identical output from cache alone. A judge that makes an unconditional call at startup, or whose cache keys on `base_url` (the LangChain default), fails this check. See the [prompt cache page](howto/05-prompt-cache.md) for per-client instructions.
 
+## TREC 2026 AutoJudge Test
+
+The test data is released — see the [participation checklist](howto/trec-2026-autojudge-test.md); **submission deadline: September 30, 2026**. In short: fetch the two test datasets (`./fetch_pilot_dataset.sh --dataset rag26` / `ragtime26`), run your judge and upload the leaderboards (`python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml --meta-evaluate --dataset rag26-generation --upload-tira`, likewise for `ragtime26-repgen`), and ship the matching code submission. Local meta-evaluation on the test data correlates against a placeholder truth — a pipeline check, not a quality signal.
+
 ## Submission
 
 See the [submission page](howto/07-submit-to-tira.md) for the full procedure.
