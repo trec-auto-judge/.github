@@ -63,7 +63,6 @@ Fetch your authentication token from TIRA: navigate to the [TREC AutoJudge task]
 <img width="1808" height="985" alt="TIRA UI showing the authentication token" src="https://github.com/user-attachments/assets/995cbd0e-1eae-4a70-a13b-acbf1d2229dc" />
 
 ```bash
-pip install --upgrade tira
 tira-cli login --token <auth-token>
 tira-cli verify-installation --task trec-auto-judge --team <your-team>
 ```
