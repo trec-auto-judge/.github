@@ -82,7 +82,7 @@ export TREC_AUTOJUDGE_PASSWORD=...              # basic-auth password
 
 The script reads `TREC_AUTOJUDGE_USER` and `TREC_AUTOJUDGE_PASSWORD` from the environment (both required) — **never commit them**. It fetches the released run tarballs, extracts each track into `./local-data/<track>/`, and prints the resulting layout so you can confirm it matches the paths in `datasets.yml` (which lists every dataset with its `responses`/`topics`, its `tira_id`, and its meta-evaluation `bucket`). Pass `--keep-archive` to retain the downloaded `.tar.gz`.
 
-This fetches the **pilot/training** data (v0.2); the TREC 2026 AutoJudge test data releases in August (a sibling `fetch_test_dataset.sh` will handle it). Corpora and topics for some tracks come from the host tracks — see the data release page. With the data in place, [run your judge over it](04-run-workflows.md).
+The script covers both the **pilot/training** releases (v0.2: `dragun25`, `rag25`, `ragtime25`) and the **TREC 2026 AutoJudge test** tracks (`rag26`, `ragtime26`) — which release a track lives in is a property of the track, so just name the dataset (or track) and the right archive is fetched, e.g. `./fetch_pilot_dataset.sh --dataset rag26`. Corpora and topics for some tracks come from the host tracks — see the data release page. With the data in place, [run your judge over it](04-run-workflows.md).
 
 ## References
 
