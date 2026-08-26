@@ -60,7 +60,7 @@ Also replace the README's starter-kit overview with a description of your own ap
 
 ## Step 4 — Verify the environment
 
-Run the included smoke test, which executes an example judge on the synthetic `kiddie` dataset end to end:
+Run the included smoke test, which executes the `naive` example judge — chosen because it makes no LLM calls, so it works before your [endpoint is configured](02-configure-llm-endpoint.md) — on the synthetic `kiddie` dataset end to end (the `WORKFLOW` line in `run_kiddie.sh` is where you later point the smoke test at your own judge):
 
 ```bash
 bash run_kiddie.sh

@@ -17,7 +17,7 @@ judges/myjudge/
   workflow.yml      # workflow configuration
 ```
 
-Remember to `git add judges/myjudge/` — new directories start untracked. Delete the example judges you did not write before [submitting](07-submit-to-tira.md).
+Remember to `git add judges/myjudge/` — new directories start untracked. Delete the example judges you did not write before [submitting](07-submit-to-tira.md). For a quick end-to-end smoke test of your judge on the kiddie dataset, point the `WORKFLOW` line in `run_kiddie.sh` at your `workflow.yml`.
 
 ### Minimum-compatibility tests, for free
 
