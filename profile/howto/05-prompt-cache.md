@@ -29,7 +29,7 @@ Any caching mechanism qualifies, as long as it meets four requirements:
 
 1. **The store lives under `$CACHE_DIR`** — that is the directory TIRA mounts and the only path that survives into a submission run.
 2. **The backend is disk-based.** Inside TIRA's no-internet sandbox, a Redis, S3, or other hosted cache backend cannot connect — a common trap for litellm configurations that work fine locally.
-3. **The key must not include the endpoint URL.** `--cache-behaviour deterministic` makes tira **re-execute your judge with the endpoint disabled** (`OPENAI_BASE_URL=EMPTY`) and the first run's cache — proving cache-only reproducibility. minima-llm's key excludes the endpoint by design; LangChain's default key *includes* `openai_api_base` and must be normalized (the LangChain example judge shows an endpoint-agnostic cache wrapper). Keying on the *model* stays correct — a different LLM is supposed to miss.
+3. **The key must not include the endpoint URL.** `--cache-behaviour deterministic` makes tira **re-execute your judge with the endpoint disabled** (`OPENAI_BASE_URL=EMPTY`) and the first run's cache — proving cache-only reproducibility. minima-llm's key excludes the endpoint by design; LangChain's default key *includes* `openai_api_base` and must be normalized — wrap the cache so the endpoint is excluded from the key. Keying on the *model* stays correct — a different LLM is supposed to miss.
 4. **Prompts are byte-identical across runs.** Every caching library keys on the exact request (model, messages, temperature, ...), so nondeterministic ordering, timestamps, or dict-iteration randomness silently defeat the cache. Sort responses by `run_id` before building comparison pairs (a core [developing practice](03-develop-an-autojudge.md)) — and expect that changing the model or a sampling parameter invalidates the affected entries, by design.
 
 ## Option A — minima-llm's built-in cache
@@ -52,7 +52,7 @@ litellm.cache = Cache(type="disk", disk_cache_dir=os.environ["CACHE_DIR"])
 response = litellm.completion(model=..., messages=..., caching=True)
 ```
 
-(Requires the `litellm[caching]` extra; litellm's `cache={"no-cache": True}` per-request option mirrors force-refresh.) LangChain's cache works the same way — verified in practice by the LangChain example judge:
+(Requires the `litellm[caching]` extra; litellm's `cache={"no-cache": True}` per-request option mirrors force-refresh.) LangChain's cache works the same way (but remember requirement 3 — normalize the endpoint out of its key before submitting):
 
 ```python
 from langchain_community.cache import SQLiteCache
