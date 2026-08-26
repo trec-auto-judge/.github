@@ -2,7 +2,7 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). The activity pages ([1](01-setup-environment.md)–[7](07-submit-to-tira.md)) explain each step in depth; this page is the checklist for the 2026 test phase.*
 
-The **TREC 2026 AutoJudge test data is released.** Participating means running your judge on the two test datasets and submitting the results — both as a data submission (your leaderboards) and as a code submission (your judge, for reproducible re-runs) — by the **submission deadline: September 30, 2026**. If you have worked through the HowTo, everything below is familiar; the only news is *which* datasets and *which* commands.
+The **TREC 2026 AutoJudge test data is released.** To participate, run your judge on the two test datasets and submit the results by the **submission deadline: September 30, 2026**. A complete submission has two parts: the leaderboards your judge produces (data submission) and the judge itself (code submission, so we can re-run it). If you have worked through the HowTo, everything below is familiar — the only news is which datasets and which commands.
 
 | Dataset | Host track | Systems to judge | Topics |
 |---------|-----------|------------------|--------|
@@ -13,10 +13,11 @@ The **TREC 2026 AutoJudge test data is released.** Participating means running y
 
 ## 1. Fetch the test data
 
-With the release credentials (from the organizers) in your environment ([setup step 5](01-setup-environment.md#step-5--fetch-the-evaluation-datasets)):
+The user is `trec2026`, and the password is the password of the TREC Active Participants page ([setup step 5](01-setup-environment.md#step-5--fetch-the-evaluation-datasets)):
 
 ```bash
-export TREC_AUTOJUDGE_USER=...  TREC_AUTOJUDGE_PASSWORD=...
+export TREC_AUTOJUDGE_USER=trec2026
+export TREC_AUTOJUDGE_PASSWORD=...   # the TREC Active Participants password
 ./fetch_pilot_dataset.sh --dataset rag26
 ./fetch_pilot_dataset.sh --dataset ragtime26
 ```
@@ -28,6 +29,8 @@ Each track extracts to `./local-data/<track>/`; the starter kit's `datasets.yml`
 One command per dataset runs your judge, meta-evaluates, and uploads the leaderboards to TIRA (the data submission):
 
 ```bash
+export OPENAI_BASE_URL=...  OPENAI_API_KEY=...  OPENAI_MODEL=...   # your LLM endpoint, see activity 2
+
 python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml \
     --meta-evaluate --dataset rag26-generation --upload-tira
 python run_all_datasets.py --workflow judges/<your-judge>/workflow.yml \
@@ -38,7 +41,7 @@ Add `--variant NAME` to submit a specific [variant](04-run-workflows.md), and `-
 
 Two things to know when reading the output:
 
-- **The local meta-evaluation is a pipeline check only.** The test releases ship a *placeholder* truth leaderboard — the correlations you see locally are meaningless by design. The meta-evaluation that counts runs on the organizers' side against held-out assessments ([why](06-meta-evaluation.md#the-authoritative-meta-evaluation-runs-on-tira)).
+- **The local meta-evaluation is a pipeline check only.** The test releases ship a *placeholder* truth leaderboard (`eval/generation/random.eval.jsonl` resp. `eval/repgen/random.eval.jsonl` — random scores, as the name says) — the correlations you see locally are meaningless by design. The meta-evaluation that counts runs on the organizers' side against held-out assessments ([why](06-meta-evaluation.md#the-authoritative-meta-evaluation-runs-on-tira)).
 - **Judge all runs.** Submissions must cover every run in the dataset — partial submissions (e.g. `--runs prio1`) cannot be accepted.
 
 ## 3. Submit your code
@@ -55,4 +58,4 @@ tira-cli code-submission --dry-run --path . \
 
 ## Questions?
 
-Use the private TIRA chat we opened with your team at [registration](README.md#prerequisites).
+Use the private TIRA chat we opened with your team at [registration](README.md#prerequisites), or ask in the Slack channel [#trec2026-auto-judge](https://acmsigir.slack.com/archives/C0BCHTQD5DK).
