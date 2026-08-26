@@ -233,6 +233,7 @@ Anything you might want to vary — prompt style, number of nuggets, grading sca
 ## Conventions that keep judges well-behaved
 
 - **Read the endpoint from `llm_config`, never hardcode keys or URLs** — on TIRA the organizer injects the endpoint through this parameter ([details](02-configure-llm-endpoint.md)).
+- **Expect empty reports.** A run may ship `responses: []` for a topic it skipped — score it (typically the bottom grade), never crash or drop the topic. The starter kit's test suite checks this.
 - **Describe every measure.** Each `MeasureSpec` `description` (what it represents, its range, how to read it) exports to `measures.yml` alongside your leaderboard and documents your judge for organizers and downstream tooling.
 - **Sort before you compare.** Order responses by `run_id` before building comparison pairs, so prompts — and therefore [prompt-cache](05-prompt-cache.md) keys — stay identical across runs.
 - **Accept the injected output parameters.** All judge methods receive auto-filled `filebase: str = "default"` and `outdir: Path = Path(".")` for constructing output paths; declare them explicitly. Setting `filebase: "{_name}"` in `workflow.yml` names output files after the variant or sweep being run.
