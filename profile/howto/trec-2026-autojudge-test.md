@@ -2,7 +2,12 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). The activity pages ([1](01-setup-environment.md)–[7](07-submit-to-tira.md)) explain each step in depth; this page is the checklist for the 2026 test phase.*
 
-The **TREC 2026 AutoJudge test data is released.** To participate, run your judge on the two test datasets and submit the results by the **submission deadline: September 30, 2026**. A complete submission has two parts: the leaderboards your judge produces (data submission) and the judge itself (code submission, so we can re-run it). If you have worked through the HowTo, everything below is familiar — the only news is which datasets and which commands.
+The **TREC 2026 AutoJudge test data is released.** Run your judge on the two test datasets and submit by **September 30, 2026**. A complete submission has two parts:
+
+- **Data submission** — the leaderboards your judge produces.
+- **Code submission** — the judge itself, so we can re-run it.
+
+If you have worked through the HowTo, everything below is familiar — the only news is which datasets and which commands.
 
 | Dataset | Host track | Systems to judge | Topics |
 |---------|-----------|------------------|--------|
