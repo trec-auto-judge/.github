@@ -209,7 +209,7 @@ tira-cli code-submission \
     --command 'auto-judge run --workflow /auto-judge/judges/<your-judge>/workflow.yml --variant <variant> --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 ```
 
-When the dry run passes, remove `--dry-run` and run the same command to upload.
+When the dry run passes, upload by re-running the command without `--dry-run` — and without `--dataset`: on the real submission, `--dataset` restricts which datasets your code will be run on. Leave it out to run on all available datasets, or name exactly the datasets that apply.
 
 
 
@@ -218,6 +218,7 @@ When the dry run passes, remove `--dry-run` and run the same command to upload.
 - **All judge specific command line options go inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
 - **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. With `EMPTY_DIR`, TIRA starts from an empty cache and re-executes your judge deterministically to seed then replay it. Mounting your locally-seeded cache instead (`'$CACHE_DIR=cache'`) would let TIRA replay from it with no LLM calls — **pending confirmation that `tira-cli` uploads the mounted cache** (see [Prompt cache](05-prompt-cache.md)); seed it by running the same workflow, variant, and `OPENAI_MODEL` you submit, since mismatched prompts miss. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.
 - **`--forward-environment-variable` declares which environment variables your code needs.** The declared *names* are recorded with the submission — TIRA injects exactly these variables whenever the software runs later (your own [remote runs](08-run-on-tira-custom-endpoint.md) or our executions). No *values* are transmitted: no local secrets leave your machine with the submission (values are shared only when the software is actually run — see the warning in [Run on TIRA with custom endpoint](08-run-on-tira-custom-endpoint.md)). But a submission made *without* the flag can never receive an LLM endpoint — a later `tira-cli run remote` will silently not pass your `OPENAI_*` variables. If that happened, resubmit with the flag (which registers a new submission).
+- **`--dataset` restricts where your code runs.** On a dry run it picks the dataset for the local test (kiddie is fast). On the real submission it limits your code to exactly that dataset — leave it out to run on all available datasets, or name all datasets that apply.
 - **One submission covers one judge/variant.** Submit multiple variants by repeating the tira-cli command with a different `--command` string.
 
 
@@ -296,12 +297,13 @@ tira-cli code-submission --dry-run --path . \
 #   ./cache you warmed above (cost-free replay on TIRA), swap in --mount-cache '$CACHE_DIR=cache'
 #   — see Prompt cache (pending confirmation that the mounted cache uploads).
 
-# dry run green? re-run the same command without --dry-run to upload the code,
-# testing it on a real dataset instead of kiddie:
+# dry run green? upload by re-running without --dry-run and WITHOUT --dataset
+# (on the real submission, --dataset would restrict the code to that one dataset;
+# leaving it out runs on all available datasets):
 tira-cli code-submission --path . \
     --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
-    --task trec-auto-judge --dataset dragun-repgen-20260608-test \
+    --task trec-auto-judge \
     --command 'auto-judge run --workflow /auto-judge/judges/tinyjudge/workflow.yml --variant context --rag-responses $inputDataset/runs/*/ --rag-topics $inputDataset/topics/*.jsonl --out-dir $outputDir'
 ```
 
