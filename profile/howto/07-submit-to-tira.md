@@ -42,13 +42,23 @@ uv pip install --upgrade tira
 
 (`pip3 install --upgrade tira` works equally outside a venv.)
 
-For a code submission, Docker or podman must be able to **build and run containers** when you submit — the build-and-test happens on your machine before anything is uploaded. The starter kit ships a read-only preflight that diagnoses the common container-runtime problems and prints the exact fix for each:
+For a code submission, Docker or podman must be able to **build and run containers** when you submit — the build-and-test happens on your machine before anything is uploaded. Two independent checks tell you where you stand:
+
+**Check the container runtime.** The starter kit ships a read-only preflight that diagnoses the common container-runtime problems and prints the exact fix for each; add `--fix` to also apply the one safe self-repair (`podman system migrate`):
 
 ```bash
-./check_container_setup.sh     # add --fix to also apply the one safe self-repair (podman system migrate)
+./check_container_setup.sh
 ```
 
 (Not sure which engine you have? `docker version` — the first line says `Podman Engine` or `Docker Engine`; many distributions ship `docker` as a podman compatibility shim.)
+
+**Check tira-cli.** TIRA's own verification confirms that tira-cli is installed correctly and can reach your container engine:
+
+```bash
+tira-cli verify-installation
+```
+
+Its authentication and upload checks will report "not valid" until you have logged in — that is expected here; step 3 repeats the verification in its complete, scoped form.
 
 If you cannot get a container runtime working on your machine at all, you can still make the **data submission** — and reach out in your team's private TIRA chat for the code part.
 
