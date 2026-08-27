@@ -30,10 +30,9 @@ There are three submission paths with different mechanics — most participants 
 - **A Dockerfile at the repo root** specifies how your software is dockerized. Making it [dev-container](https://containers.dev/) compatible lets you develop directly inside the container.
 - **The sandbox has no internet access.** Your judge receives its LLM endpoint through forwarded environment variables — see [Configure your LLM endpoint](02-configure-llm-endpoint.md). Nothing else on the network will be reachable.
 - **No secrets in the image.** Never `COPY`/`ADD` API keys into the Dockerfile; pass them only via `--forward-environment-variable` so they are injected at run time.
-
 - **The evaluation datasets are fetched.** You will run your judge on them before submitting — see [setup step 5](01-setup-environment.md#step-5--fetch-the-evaluation-datasets).
 
-## Step 2 — Install tira-cli and start Docker
+## Step 2 — Install tira-cli and check your container runtime
 
 Inside your activated venv (the starter kit's `.[all]` extra may already provide it):
 
@@ -47,14 +46,13 @@ For a code submission, Docker or podman must be able to **build and run containe
 
 ```bash
 ./check_container_setup.sh     # add --fix to also apply the one safe self-repair (podman system migrate)
-tira-cli verify-installation
 ```
-
-At this stage only the container-side ✓s matter — `verify-installation` reports "not valid" until it can also check authentication and image upload, which needs the login and `--task`/`--team` scoping from step 3.
 
 (Not sure which engine you have? `docker version` — the first line says `Podman Engine` or `Docker Engine`; many distributions ship `docker` as a podman compatibility shim.)
 
-**Podman users:** podman works fully rootless ("headless") — no root daemon required. Three things need to be in place, all covered by the preflight above:
+If you cannot get a container runtime working on your machine at all, you can still make the **data submission** — and reach out in your team's private TIRA chat for the code part.
+
+**Podman users:** podman works fully rootless ("headless") — no root daemon required. Three things need to be in place. The preflight checks all three for you — this is what its fixes mean and why:
 
 - **A docker-compatible endpoint.** Start the user-level API socket and make sure tira-cli finds it — either through your distribution's docker-compat shim (`docker` resolving to podman, e.g. the `podman-docker` package) or via the `DOCKER_HOST` variable:
 
@@ -200,7 +198,7 @@ When the dry run passes, remove `--dry-run` and run the same command to upload.
 
 
 
-Details to know:
+### Details to know
 
 - **All judge specific command line options go inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
 - **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. With `EMPTY_DIR`, TIRA starts from an empty cache and re-executes your judge deterministically to seed then replay it. Mounting your locally-seeded cache instead (`'$CACHE_DIR=cache'`) would let TIRA replay from it with no LLM calls — **pending confirmation that `tira-cli` uploads the mounted cache** (see [Prompt cache](05-prompt-cache.md)); seed it by running the same workflow, variant, and `OPENAI_MODEL` you submit, since mismatched prompts miss. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.
