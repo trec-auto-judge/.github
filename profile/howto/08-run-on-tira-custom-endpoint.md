@@ -2,7 +2,7 @@
 
 *Part of the [TREC AutoJudge HowTo](README.md). Previous: [Submit to TIRA](07-submit-to-tira.md).*
 
-After the [code submission](07-submit-to-tira.md) uploads, your judge lives in TIRA as a *software* — and you can execute it **remotely on TIRA's workers**, on any dataset, against an LLM endpoint of your choice. This is optional: we organizers run all collected submissions ourselves (documented in [Run Submitted Code in TIRA](../organizers-howto/run-in-tira.md)). Run it yourself when you want to verify that your submission behaves in TIRA exactly as it did locally, or to produce results with a custom LLM.
+After the [code submission](07-submit-to-tira.md) uploads, your judge lives in TIRA as a *software* — and you can execute it **remotely on TIRA's workers**, on any dataset, against an LLM endpoint of your choice. This is optional: we organizers run all submitted code ourselves (documented in [Run Submitted Code in TIRA](../organizers-howto/run-in-tira.md)). Run it yourself when you want to verify that your submission behaves in TIRA exactly as it did locally, or to produce results with a custom LLM.
 
 ## Step 1 — Identify your submission's run-tag
 

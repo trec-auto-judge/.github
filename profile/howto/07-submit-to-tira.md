@@ -28,7 +28,7 @@ There are three submission paths with different mechanics — most participants 
 - **Example judges you did not write are deleted** so they do not ship with your submission.
 - **The template is customized**: `pyproject.toml` no longer says `name = "auto-judge-starterkit"`, and the README describes *your* judge — an unrenamed template reads as an unconfigured submission.
 - **A Dockerfile at the repo root** specifies how your software is dockerized. Making it [dev-container](https://containers.dev/) compatible lets you develop directly inside the container.
-- **The sandbox has no internet access.** Your judge receives its LLM endpoint through forwarded environment variables — see [Configure your LLM endpoint](02-configure-llm-endpoint.md). Nothing else on the network will be reachable.
+- **Take the LLM endpoint from the environment — do not rely on other network access.** Your judge receives its LLM endpoint through forwarded environment variables — see [Configure your LLM endpoint](02-configure-llm-endpoint.md). `tira-cli`'s local test runs without network by default, and in our executions the endpoint is cluster-internal — anything else your judge needs at runtime (models, NLTK data, ...) must be baked into the Docker image.
 - **No secrets in the image.** Never `COPY`/`ADD` API keys into the Dockerfile; pass them only via `--forward-environment-variable` so they are injected at run time.
 - **The evaluation datasets are fetched.** You will run your judge on them before submitting — see [setup step 5](01-setup-environment.md#step-5--fetch-the-evaluation-datasets).
 
@@ -224,7 +224,7 @@ When the dry run passes, remove `--dry-run` and run the same command to upload.
 ### Troubleshooting errors
 
 - **`No module named '...'` inside the container, although it installs fine locally** — the `trec-auto-judge-base` image runs Python from `/venv` (`PATH=/venv/bin`), so dependencies must be installed *into that venv*: the Dockerfile needs `RUN . /venv/bin/activate && uv pip install -e .[all]`, **not** `uv pip install --system ...` (a system install is invisible at runtime). Bites exactly when your judge adds dependencies beyond the template's.
-- **`Connection error` from your LLM client inside the container** — tira's local test runs **without network by default**, mirroring the TIRA sandbox. Testing against an external endpoint (OpenRouter, hosted OpenAI, ...) needs `--allow-network` on the `code-submission` command; alternatively, a mounted warm cache lets the judge complete with no network at all. Inside real TIRA the organizer-provided endpoint is cluster-internal, so this only concerns your local test.
+- **`Connection error` from your LLM client inside the container** — tira's local test runs **without network by default**. Testing against an external endpoint (OpenRouter, hosted OpenAI, ...) needs `--allow-network` on the `code-submission` command; alternatively, a mounted warm cache lets the judge complete with no network at all. Inside real TIRA the organizer-provided endpoint is cluster-internal, so this only concerns your local test.
 - **`The cache directory mounted via CACHE_DIR was not used during the execution`** — tira-cli verifies that the mounted cache actually gets touched. Most often this is a *symptom*: the judge crashed before its first LLM call (check the error above it in the log). If the judge genuinely ran, it is not honoring `$CACHE_DIR` — see [Prompt cache](05-prompt-cache.md).
 
 If anything fails — or you cannot run Docker locally at all — reach out in the private TIRA chat that we opened with your team at registration ([prerequisites](README.md#prerequisites)), and we will find a way to get your submission in.
@@ -306,6 +306,7 @@ tira-cli code-submission --path . \
 ```
 
 ## References
+- [Run on TIRA with custom endpoint](08-run-on-tira-custom-endpoint.md) — execute your uploaded submission on TIRA's workers with your own LLM
 - [Fetch the datasets](01-setup-environment.md#step-5--fetch-the-evaluation-datasets) — download the released runs into `./local-data/`
 - [Configure your LLM endpoint](02-configure-llm-endpoint.md) — how the endpoint reaches your judge inside the sandbox
 - [Run workflows](04-run-workflows.md) — `auto-judge run`, variants, and `run_all_datasets.py`
