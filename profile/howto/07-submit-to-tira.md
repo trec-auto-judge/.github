@@ -52,7 +52,10 @@ For a code submission, Docker or podman must be able to **build and run containe
 
 If you cannot get a container runtime working on your machine at all, you can still make the **data submission** — and reach out in your team's private TIRA chat for the code part.
 
-**Podman users:** podman works fully rootless ("headless") — no root daemon required. Three things need to be in place. The preflight checks all three for you — this is what its fixes mean and why:
+<details>
+<summary><b>Using podman instead of Docker?</b> Works fully rootless — expand for what the preflight's fixes mean.</summary>
+
+Podman works fully rootless ("headless") — no root daemon required. Three things need to be in place. The preflight checks all three for you — this is what its fixes mean and why:
 
 - **A docker-compatible endpoint.** Start the user-level API socket and make sure tira-cli finds it — either through your distribution's docker-compat shim (`docker` resolving to podman, e.g. the `podman-docker` package) or via the `DOCKER_HOST` variable:
 
@@ -76,6 +79,8 @@ If you cannot get a container runtime working on your machine at all, you can st
   mkdir -p ~/.config/containers
   printf '{\n  "default": [{"type": "insecureAcceptAnything"}]\n}\n' > ~/.config/containers/policy.json
   ```
+
+</details>
 
 ## Step 3 — Authenticate
 
