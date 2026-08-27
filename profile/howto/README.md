@@ -13,8 +13,9 @@ Welcome! Participating in TREC AutoJudge means building an automatic judge for R
 | 5 | [Prompt cache](05-prompt-cache.md) | make repeated LLM runs instant and deterministic; debug cache misses |
 | 6 | [Meta-evaluation](06-meta-evaluation.md) | measure how well your judge agrees with ground truth |
 | 7 | [Submit to TIRA](07-submit-to-tira.md) | dry-run and upload your judge as a code submission |
+| 8 | [Run on TIRA with custom endpoint](08-run-on-tira-custom-endpoint.md) | (optional) execute your uploaded judge on TIRA's workers against an LLM of your choice |
 
-How we organizers run the collected code submissions is documented separately in [Run Collected AutoJudge Systems in TIRA](../organizers-howto/run-in-tira.md) — as a participant you may also use it, e.g., to run your submission against a custom LLM.
+How we organizers batch-run all collected code submissions is documented separately in [Run Submitted Code in TIRA](../organizers-howto/run-in-tira.md).
 
 **The TREC 2026 AutoJudge test data is released** — the [TREC 2026 AutoJudge Test page](trec-2026-autojudge-test.md) is the participation checklist: fetch the two test datasets, run your judge, upload leaderboards and code.
 

@@ -1,6 +1,6 @@
 # 7. Submit to TIRA
 
-*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Meta-evaluation](06-meta-evaluation.md).*
+*Part of the [TREC AutoJudge HowTo](README.md). Previous: [Meta-evaluation](06-meta-evaluation.md). Next (optional): [Run on TIRA with custom endpoint](08-run-on-tira-custom-endpoint.md).*
 
 Submitting your auto-judge has two parts, and we ask you to do **both**: a **data submission** — you run your judge on the released datasets and upload the leaderboards — and a **code submission**, where `tira-cli` builds your repository's Dockerfile into an image, tests that image locally on the kiddie dataset, and — only if the outputs validate — uploads it to TIRA, where we run it on all datasets, potentially with multiple LLMs. Complete the [prerequisites](README.md#prerequisites) (TIRA account, team registration) before starting here.
 
@@ -207,6 +207,7 @@ When the dry run passes, remove `--dry-run` and run the same command to upload.
 
 - **All judge specific command line options go inside the quoted `--command`.** There is no `tira-cli --variant` flag — `--variant`, and any other `auto-judge run` option, belongs inside the command string. `$inputDataset` and `$outputDir` are substituted by TIRA.
 - **The cache flags** (`--cache-behaviour deterministic`, `--mount-cache '$CACHE_DIR=EMPTY_DIR'`) apply to LLM judges that cache — [Prompt cache](05-prompt-cache.md) explains the full lifecycle. Judges without an LLM can omit them. With `EMPTY_DIR`, TIRA starts from an empty cache and re-executes your judge deterministically to seed then replay it. Mounting your locally-seeded cache instead (`'$CACHE_DIR=cache'`) would let TIRA replay from it with no LLM calls — **pending confirmation that `tira-cli` uploads the mounted cache** (see [Prompt cache](05-prompt-cache.md)); seed it by running the same workflow, variant, and `OPENAI_MODEL` you submit, since mismatched prompts miss. The mount variable must match what your judge reads — `CACHE_DIR` by convention, backends may differ.
+- **`--forward-environment-variable` declares which environment variables your code needs.** The declared *names* are recorded with the submission — TIRA injects exactly these variables whenever the software runs later (your own [remote runs](08-run-on-tira-custom-endpoint.md) or our executions). No *values* are transmitted: no local secrets leave your machine with the submission (values are shared only when the software is actually run — see the warning in [Run on TIRA with custom endpoint](08-run-on-tira-custom-endpoint.md)). But a submission made *without* the flag can never receive an LLM endpoint — a later `tira-cli run remote` will silently not pass your `OPENAI_*` variables. If that happened, resubmit with the flag (which registers a new submission).
 - **One submission covers one judge/variant.** Submit multiple variants by repeating the tira-cli command with a different `--command` string.
 
 

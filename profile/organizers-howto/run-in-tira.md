@@ -1,12 +1,12 @@
-# Run Collected AutoJudge Systems in TIRA
+# Run Submitted Code in TIRA
 
-*Part of the TREC AutoJudge organizers HowTo. The participant-facing steps end with [Submit to TIRA](../howto/07-submit-to-tira.md).*
+*Part of the TREC AutoJudge organizers HowTo. The participant-facing steps end with [Submit to TIRA](../howto/07-submit-to-tira.md); participants who want to run their own submission against a custom LLM should follow [Run on TIRA with custom endpoint](../howto/08-run-on-tira-custom-endpoint.md).*
 
-After we have collected code submissions of AutoJudge systems in TIRA (i.e., the submissions that [participants submitted to TIRA](../howto/07-submit-to-tira.md)), we can run the collected AutoJudge systems on all datasets against some LLMs, potentially with repetitions. This page is aimed at organizers — and at participants who want to run their code submission against a custom LLM. As a participant, you can [stop after you have submitted your software](../howto/07-submit-to-tira.md); this page is here to make transparent how we then run all collected AutoJudge systems. We as organizers will mostly run the collected AutoJudge systems against two smaller LLMs (at the moment we expect `openai/gpt-oss-20b` and `Qwen/Qwen2.5-7B-Instruct`), potentially with repetitions if our compute budget allows.
+After we have collected code submissions of AutoJudge systems in TIRA (i.e., the submissions that [participants submitted to TIRA](../howto/07-submit-to-tira.md)), we can run the collected AutoJudge systems on all datasets against some LLMs, potentially with repetitions. This page is aimed at organizers; as a participant, you can [stop after you have submitted your software](../howto/07-submit-to-tira.md) — this page is here to make transparent how we then run all collected AutoJudge systems. We as organizers will mostly run the collected AutoJudge systems against two smaller LLMs (at the moment we expect `openai/gpt-oss-20b` and `Qwen/Qwen2.5-7B-Instruct`), potentially with repetitions if our compute budget allows.
 
 Before running AutoJudge systems through TIRA, please first get to know how [TIRA handles credentials for LLMs via REST API](https://docs.tira.io/participants/llms-via-rest-api.html).
 
-## Run a Collected AutoJudge System via the UI
+## Run Submitted Code via the UI
 
 After an AutoJudge system has been submitted, it appears in the UI, where one can start it by passing the environment variables that it needs (the required environment variables were collected during submission). This looks like this:
 
@@ -15,7 +15,7 @@ After an AutoJudge system has been submitted, it appears in the UI, where one ca
 
 Please note that it is rather inconvenient to start many software executions via the UI, so we only do this for spot-checks; once a software seems to work, we include its execution in CLI scripts.
 
-## Run Collected AutoJudge Systems via the CLI
+## Run Submitted Code via the CLI
 
 To run many collected software submissions against multiple LLMs, with potentially multiple repetitions on multiple datasets, we use the CLI.
 
