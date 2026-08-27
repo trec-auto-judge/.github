@@ -70,7 +70,7 @@ At this stage only the container-side ✓s matter — `verify-installation` repo
   podman system migrate
   ```
 
-  If the ranges exist but pulls still fail, run `podman system migrate` once more: rootless podman keeps its namespace alive in a per-session pause process, and a stale one freezes an old (collapsed) mapping even after the configuration is fixed. `./check_container_setup.sh` detects an unusable mapping either way.
+  If the ranges exist but pulls still fail, run `podman system migrate` once more: rootless podman keeps its namespace alive in a per-session pause process, and a stale one freezes an old (collapsed) mapping even after the configuration is fixed. `./check_container_setup.sh` detects an unusable mapping either way — and `./check_container_setup.sh --fix` applies the migrate itself when (and only when) that check fails.
 
 - **A signature policy.** If the build fails at the first `FROM` step with `no policy.json file found` (podman-only; Docker never needs it):
 
