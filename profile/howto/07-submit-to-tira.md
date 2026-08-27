@@ -46,7 +46,7 @@ uv pip install --upgrade tira
 For a code submission, Docker or podman must be able to **build and run containers** when you submit — the build-and-test happens on your machine before anything is uploaded. The starter kit ships a read-only preflight that diagnoses the common container-runtime problems and prints the exact fix for each:
 
 ```bash
-./check_container_setup.sh
+./check_container_setup.sh     # add --fix to also apply the one safe self-repair (podman system migrate)
 tira-cli verify-installation
 ```
 
@@ -231,6 +231,10 @@ git clone git@github.com:<your-user>/<your-judge>.git && cd <your-judge>
 uv venv && source .venv/bin/activate
 uv pip install -e '.[all]'
 uv pip install --upgrade tira
+
+# container-runtime preflight: is Docker/podman ready to build and run containers?
+# (prints the exact fix for each failed check; --fix applies the one safe self-repair)
+./check_container_setup.sh
 
 tira-cli login --token <auth-token>
 
