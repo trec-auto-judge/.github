@@ -60,7 +60,7 @@ The call starts the execution on TIRA and polls until it completes; results appe
 - **`--runs-per-approach N`** repeats each combination until N runs exist — for measuring run-to-run variance.
 - **`--require "evaluation.Model==$OPENAI_MODEL"`** skips combinations that already have a run with a matching model. Note the **double** quotes — here the local expansion is deliberate: your shell substitutes `$OPENAI_MODEL` from your environment, so re-invoking the command only executes what is missing for the model you currently have configured.
 
-When the spot check passes, point the same command at the real datasets, e.g. `--dataset rag26-20260827_1-test ragtime26-20260827-test`.
+When the spot check passes, point the same command at the real datasets (their TIRA ids are the `tira_id` values in `datasets.yml`).
 
 ## Alternative — start a run via the UI
 
