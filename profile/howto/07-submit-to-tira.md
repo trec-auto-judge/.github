@@ -236,10 +236,11 @@ uv pip install -e '.[all]'
 uv pip install --upgrade tira
 
 # container-runtime preflight: is Docker/podman ready to build and run containers?
-# (prints the exact fix for each failed check; --fix applies the one safe self-repair)
-./check_container_setup.sh
+# (prints the exact fix for each failed check)
+./check_container_setup.sh            # add --fix to also apply the one safe self-repair
 
 tira-cli login --token <auth-token>
+tira-cli verify-installation --task trec-auto-judge --team <your-team>
 
 # set LLM environment and prompt cache
 export OPENAI_API_KEY=... OPENAI_BASE_URL=... OPENAI_MODEL=... CACHE_DIR=./cache
@@ -275,8 +276,6 @@ python run_all_datasets.py --workflow judges/tinyjudge/workflow.yml --variant co
 
 
 # --- 3. CODE-upload the judge (dry-run builds + tests locally, uploads nothing) ---
-tira-cli verify-installation --task trec-auto-judge --team <your-team>
-
 tira-cli code-submission --dry-run --path . \
     --cache-behaviour deterministic --mount-cache '$CACHE_DIR=EMPTY_DIR' \
     --forward-environment-variable OPENAI_API_KEY OPENAI_BASE_URL OPENAI_MODEL \
