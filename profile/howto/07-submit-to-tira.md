@@ -43,18 +43,41 @@ uv pip install --upgrade tira
 
 (`pip3 install --upgrade tira` works equally outside a venv.)
 
-For a code submission, the Docker (or podman) daemon must be **running** when you submit — the build-and-test happens on your machine before anything is uploaded. Checking early saves a late surprise:
+For a code submission, Docker or podman must be able to **build and run containers** when you submit — the build-and-test happens on your machine before anything is uploaded. The starter kit ships a read-only preflight that diagnoses the common container-runtime problems and prints the exact fix for each:
 
 ```bash
+./check_container_setup.sh
 tira-cli verify-installation
 ```
 
-**Podman users:** if the build fails at the first `FROM` step with `no policy.json file found`, create the missing signature-policy file (podman-only; Docker never needs it):
+At this stage only the container-side ✓s matter — `verify-installation` reports "not valid" until it can also check authentication and image upload, which needs the login and `--task`/`--team` scoping from step 3.
 
-```bash
-mkdir -p ~/.config/containers
-printf '{\n  "default": [{"type": "insecureAcceptAnything"}]\n}\n' > ~/.config/containers/policy.json
-```
+(Not sure which engine you have? `docker version` — the first line says `Podman Engine` or `Docker Engine`; many distributions ship `docker` as a podman compatibility shim.)
+
+**Podman users:** podman works fully rootless ("headless") — no root daemon required. Three things need to be in place, all covered by the preflight above:
+
+- **A docker-compatible endpoint.** Start the user-level API socket and make sure tira-cli finds it — either through your distribution's docker-compat shim (`docker` resolving to podman, e.g. the `podman-docker` package) or via the `DOCKER_HOST` variable:
+
+  ```bash
+  systemctl --user enable --now podman.socket
+  export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock   # only if `docker` is not podman
+  ```
+
+- **Subordinate user IDs.** If pulling the base image fails with *"potentially insufficient UIDs or GIDs available in user namespace"*, your user lacks subordinate ID ranges. Grant them and migrate:
+
+  ```bash
+  sudo usermod --add-subuids 100000-165535 --add-subgids 100000-165535 $USER
+  podman system migrate
+  ```
+
+  If the ranges exist but pulls still fail, run `podman system migrate` once more: rootless podman keeps its namespace alive in a per-session pause process, and a stale one freezes an old (collapsed) mapping even after the configuration is fixed. `./check_container_setup.sh` detects an unusable mapping either way.
+
+- **A signature policy.** If the build fails at the first `FROM` step with `no policy.json file found` (podman-only; Docker never needs it):
+
+  ```bash
+  mkdir -p ~/.config/containers
+  printf '{\n  "default": [{"type": "insecureAcceptAnything"}]\n}\n' > ~/.config/containers/policy.json
+  ```
 
 ## Step 3 — Authenticate
 
