@@ -6,7 +6,7 @@ After the [code submission](07-submit-to-tira.md) uploads, your judge lives in T
 
 ## Step 0 — Ensure your Endpoint is on the Allow-List
 
-We maintain an allow-list of hosts that can be accessed from the sandbox. Currently, this allow-list only includes our internal servers (so our self-hosted LLMs can be accessed). After software executed successful against our own self-hosted LLMs, we will remove this allow-list so that every service provider can be used. If you need access to some other LLM endpoints prior we executed the submissions against our self-hosted LLMs, please drop us a short message, then we add it to the allow-list. If your software is started with environment variables that point to a host not on the allow-list, the start of the software fails with this message:
+We maintain an allow-list of endpoints that can be accessed from the sandbox. Currently, this allow-list only includes our internal LLM Endpoints only. After software executed successful against our own self-hosted LLMs, we will remove this allow-list so that every service provider or endpoint can be used. If you need access to some other LLM endpoints prior we executed the submissions against our self-hosted LLMs, please drop us a short message, then we add it to the allow-list. If your software is started with environment variables that point to a host not on the allow-list, the start of the software fails with this message:
 
 <img width="1906" height="266" alt="Screenshot_20260828_072046" src="https://github.com/user-attachments/assets/07c86df1-9e75-4320-a10c-dfa051bc5112" />
 
