@@ -141,6 +141,35 @@ auto-judge run --workflow judges/myjudge/workflow.yml \
     --nugget-banks path/to/banks.nuggets.jsonl ...
 ```
 
+## Qrels judge: grade once, aggregate into the leaderboard
+
+A judge that grades relevance directly records its judgments as qrels and derives the leaderboard from them. `create_qrels()` runs the grading once and returns the verified `Qrels`; with `judge_uses_qrels: true` the runner passes the same rows into `judge()`, which aggregates them into leaderboard measures without a second grading pass:
+
+```python
+from autojudge_base import Leaderboard, Qrels
+
+class MyJudge:
+    def create_qrels(self, rag_responses, rag_topics, llm_config, **kwargs) -> Qrels:
+        # grade each report (doc_id = run_id) or each cited document (doc_id = corpus id),
+        # build with build_qrels, verify, return — see "Creating qrels" below
+        return qrels
+
+    def judge(self, rag_responses, rag_topics, llm_config, qrels=None, **kwargs) -> Leaderboard:
+        # aggregate the qrels rows into leaderboard measures
+        return leaderboard
+```
+
+```yaml
+qrels_class: "judges.myjudge.my_judge:MyJudge"
+judge_class: "judges.myjudge.my_judge:MyJudge"
+
+create_qrels: true
+judge: true
+judge_uses_qrels: true
+```
+
+`create_qrels` defaults on when `judge_uses_qrels` is set, mirroring how `create_nuggets` follows the nugget wiring flags.
+
 ## Working with the data model
 
 ### Reading responses and topics
@@ -212,7 +241,9 @@ Note that the workflow runner verifies nugget banks before judging: a topic with
 
 ### Creating qrels
 
-Qrels record fine-grained relevance judgments as `(topic_id, doc_id, grade)` rows. Define a `QrelsSpec` with three extractor functions (`topic_id`, `doc_id`, `grade`, plus an `on_duplicate` policy), build with `build_qrels(records, spec)`, verify coverage with `qrels.verify(expected_topic_ids=...)`, and serialize with `write_qrel_file(...)` into standard TREC format, deterministically sorted for reproducibility. When judging generated text that has no corpus ID, derive stable ids with the `doc_id_md5` helper (`md5:<hash of text>`).
+Qrels record fine-grained relevance judgments as `(topic_id, doc_id, grade)` rows. Define a `QrelsSpec` with three extractor functions (`topic_id`, `doc_id`, `grade`, plus an `on_duplicate` policy), build with `build_qrels(records, spec)`, verify coverage with `qrels.verify(expected_topic_ids=...)`, and return the verified `Qrels` from `create_qrels()`. The workflow runner writes the returned qrels to `<filebase>.qrels` in standard TREC format, deterministically sorted ([What lands in the output directory](04-run-workflows.md#what-lands-in-the-output-directory)); a judge never serializes qrels itself, and `write_qrel_file(...)` remains for scripts outside the workflow.
+
+The `doc_id` column names the judged unit, in one of two modes: a judge that grades **whole reports** uses the report's run tag (`Report.metadata.run_id`) as the doc id, so that qrels rows map one-to-one onto leaderboard cells (each topic has one report per run); a judge that grades **cited documents** keeps the corpus doc ids that the citations reference.
 
 → API: [Qrels guide](https://github.com/trec-auto-judge/auto-judge-base/blob/main/src/autojudge_base/qrels/README.md) — building, verifying, and serializing TREC-format qrels · reference: [Qrels](https://trec-auto-judge.github.io/auto-judge-base/api/qrels/)
 

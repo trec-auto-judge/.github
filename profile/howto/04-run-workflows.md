@@ -89,11 +89,11 @@ Given `filebase: "myjudge"` and `--out-dir ./output/`:
 
 | File | When produced | Purpose |
 |------|--------------|---------|
-| `myjudge.eval.txt` | `judge: true` | leaderboard in evaluation format — the primary input for [meta-evaluation](06-meta-evaluation.md) |
+| `myjudge.eval.txt` | `judge: true` | leaderboard in ir_measures format (`run_id topic_id measure value`) — the primary input for [meta-evaluation](06-meta-evaluation.md) |
 | `myjudge.eval.measures.yml` | `judge: true` | the `MeasureSpec` descriptions and dtypes accompanying the leaderboard |
 | `myjudge.judgment.json` | `judge: true` | leaderboard scores (JSON) |
 | `myjudge.nuggets.jsonl` | `create_nuggets: true` | generated nugget banks |
-| `myjudge.qrels` | `create_qrels: true` | relevance judgments |
+| `myjudge.qrels` | `create_qrels: true` | relevance judgments in standard TREC qrels format (`topic_id 0 doc_id grade`), one file covering all runs |
 | `myjudge.config.yml` | always | full config snapshot for reproducibility |
 
 When `--limit-topics` or `--topic` is set, the runner prefixes the filebase with `tmp-` (e.g. `tmp-myjudge.eval.txt`) so partial test runs never overwrite or get mistaken for full-run outputs.
