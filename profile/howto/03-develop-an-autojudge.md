@@ -112,15 +112,33 @@ Separate classes per phase (`nugget_class`, `qrels_class`, `judge_class`) work a
 A third shape sits between the two: the judge implements only `judge()` (the `LeaderboardJudgeProtocol`), and the nugget banks come from elsewhere — a previous run, another judge, or a hand-curated file — supplied at run time with [`--nugget-banks`](04-run-workflows.md#development-flags-worth-knowing) (a JSON/JSONL file or a directory). The class **must** still declare `nugget_banks_type`, or the runner cannot deserialize the banks:
 
 ```python
-from autojudge_base import NuggetBanks
+from autojudge_base import (
+    Leaderboard,
+    LeaderboardBuilder,
+    LeaderboardSpec,
+    MeasureSpec,
+    NuggetBanks,
+)
+
+MY_SPEC = LeaderboardSpec(measures=(
+    MeasureSpec("NUGGET_SCORE", description="Average coverage of the external nuggets"),
+))
 
 class MyJudge:
     nugget_banks_type = NuggetBanks   # required — tells the runner how to load --nugget-banks
 
     def judge(self, rag_responses, rag_topics, llm_config, **kwargs) -> Leaderboard:
         nugget_banks = kwargs.get("nugget_banks")
-        # score responses against the prebuilt nuggets
-        return leaderboard
+        builder = LeaderboardBuilder(MY_SPEC)
+        for response in rag_responses:
+            score = evaluate_response(response, nugget_banks)  # your logic
+            builder.add(
+                run_id=response.metadata.run_id,
+                topic_id=response.metadata.topic_id,
+                values={"NUGGET_SCORE": score},
+            )
+        topic_ids = [topic.request_id for topic in rag_topics]
+        return builder.build(expected_topic_ids=topic_ids, on_missing="fix_aggregate")
 ```
 
 with `workflow.yml` wiring the banks into `judge()` while leaving nugget creation off:
